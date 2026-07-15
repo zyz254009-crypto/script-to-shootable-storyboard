@@ -1,0 +1,302 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/platform-profile.schema.json",
+  "title": "Platform Profile",
+  "description": "记录目标平台、投放场景、画幅、安全区、字幕区、界面遮挡、时长、声音、无障碍和内容规则的版本化快照。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "platform_profile_id",
+    "profile_version",
+    "platform_name",
+    "delivery_context",
+    "regions",
+    "verified_at",
+    "freshness",
+    "evidence",
+    "delivery_specs",
+    "layout_zones",
+    "hook_timing_policy",
+    "audio_policy",
+    "accessibility_policy",
+    "content_policy",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": { "$ref": "#/$defs/semver" },
+    "created_at": { "$ref": "#/$defs/dateTime" },
+    "created_by_stage": { "$ref": "#/$defs/stageId" },
+    "source_hash": { "$ref": "#/$defs/hash" },
+    "platform_profile_id": { "$ref": "#/$defs/id" },
+    "profile_version": { "$ref": "#/$defs/semver" },
+    "platform_name": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "product_entry": { "type": "string", "maxLength": 500 },
+    "delivery_context": {
+      "type": "string",
+      "enum": [
+        "vertical_serial_drama",
+        "short_narrative_video",
+        "narrative_ad",
+        "horizontal_short_film",
+        "other"
+      ]
+    },
+    "regions": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[A-Z]{2}$" },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "account_tier_or_entry_constraints": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1, "maxLength": 500 }
+    },
+    "verified_at": { "$ref": "#/$defs/dateTime" },
+    "valid_until": { "$ref": "#/$defs/dateTime" },
+    "freshness": {
+      "type": "string",
+      "enum": ["verified", "stale", "unknown", "deprecated"]
+    },
+    "evidence": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/evidence" },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "delivery_specs": {
+      "type": "object",
+      "required": [
+        "aspect_ratios",
+        "resolution_profiles",
+        "frame_rates",
+        "duration_seconds",
+        "caption_burn_in"
+      ],
+      "properties": {
+        "aspect_ratios": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/aspectRatio" },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "resolution_profiles": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/resolution" },
+          "minItems": 1
+        },
+        "frame_rates": {
+          "type": "array",
+          "items": { "type": "number", "exclusiveMinimum": 0 },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "duration_seconds": {
+          "$ref": "#/$defs/range"
+        },
+        "caption_burn_in": {
+          "type": "string",
+          "enum": ["required", "allowed", "forbidden", "unknown"]
+        },
+        "max_file_size_bytes": { "type": "integer", "minimum": 1 },
+        "accepted_containers": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "maxLength": 40 },
+          "uniqueItems": true
+        },
+        "accepted_video_codecs": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "maxLength": 80 },
+          "uniqueItems": true
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "layout_zones": {
+      "type": "object",
+      "required": ["coordinate_space", "safe_zones", "subtitle_zones", "ui_occlusion_zones"],
+      "properties": {
+        "coordinate_space": { "const": "normalized_top_left_origin" },
+        "safe_zones": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/zone" },
+          "minItems": 1
+        },
+        "subtitle_zones": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/zone" },
+          "minItems": 1
+        },
+        "ui_occlusion_zones": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/zone" }
+        },
+        "subject_priority_notes": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "maxLength": 500 }
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "hook_timing_policy": {
+      "type": "object",
+      "required": ["profile_specific", "opening_window_seconds", "first_information_change_seconds"],
+      "properties": {
+        "profile_specific": { "const": true },
+        "opening_window_seconds": { "$ref": "#/$defs/range" },
+        "first_information_change_seconds": { "$ref": "#/$defs/range" },
+        "segment_end_hook_required": { "type": "boolean" },
+        "notes": { "type": "string", "maxLength": 1000 }
+      },
+      "unevaluatedProperties": false
+    },
+    "audio_policy": {
+      "type": "object",
+      "required": ["audio_allowed", "audio_required", "autoplay_assumption", "loudness_status"],
+      "properties": {
+        "audio_allowed": { "type": "boolean" },
+        "audio_required": { "type": "boolean" },
+        "autoplay_assumption": {
+          "type": "string",
+          "enum": ["sound_on", "sound_off", "mixed", "unknown"]
+        },
+        "loudness_status": {
+          "type": "string",
+          "enum": ["specified", "not_specified", "unknown"]
+        },
+        "target_loudness_lufs": { "type": "number" },
+        "true_peak_dbtp": { "type": "number" }
+      },
+      "unevaluatedProperties": false
+    },
+    "accessibility_policy": {
+      "type": "object",
+      "required": ["captions", "critical_information_visual_redundancy"],
+      "properties": {
+        "captions": {
+          "type": "string",
+          "enum": ["required", "recommended", "optional", "unknown"]
+        },
+        "critical_information_visual_redundancy": { "type": "boolean" },
+        "caption_language_requirements": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$" },
+          "uniqueItems": true
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "content_policy": {
+      "type": "object",
+      "required": ["policy_version", "prohibited_categories", "restricted_categories", "aigc_labeling"],
+      "properties": {
+        "policy_version": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "prohibited_categories": { "$ref": "#/$defs/stringList" },
+        "restricted_categories": { "$ref": "#/$defs/stringList" },
+        "aigc_labeling": {
+          "type": "string",
+          "enum": ["required", "conditional", "not_required", "unknown"]
+        },
+        "explicit_label_required": { "type": "boolean" },
+        "embedded_metadata_required": { "type": "boolean" },
+        "policy_url": { "type": "string", "format": "uri" }
+      },
+      "unevaluatedProperties": false
+    },
+    "field_provenance": { "$ref": "#/$defs/fieldProvenance" }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "freshness": { "enum": ["stale", "unknown", "deprecated"] } },
+        "required": ["freshness"]
+      },
+      "then": {
+        "required": ["valid_until"]
+      }
+    }
+  ],
+  "$defs": {
+    "id": { "$ref": "provenance.schema.json#/$defs/artifactId" },
+    "semver": { "$ref": "provenance.schema.json#/$defs/semver" },
+    "dateTime": { "$ref": "provenance.schema.json#/$defs/dateTime" },
+    "stageId": { "$ref": "provenance.schema.json#/$defs/stageId" },
+    "hash": { "$ref": "provenance.schema.json#/$defs/hash" },
+    "fieldProvenance": { "$ref": "provenance.schema.json#/$defs/fieldProvenance" },
+    "aspectRatio": { "type": "string", "pattern": "^[1-9][0-9]{0,3}:[1-9][0-9]{0,3}$" },
+    "stringList": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1, "maxLength": 300 },
+      "uniqueItems": true
+    },
+    "range": {
+      "type": "object",
+      "required": ["minimum", "maximum"],
+      "properties": {
+        "minimum": { "type": "number", "minimum": 0 },
+        "maximum": { "type": "number", "minimum": 0 }
+      },
+      "unevaluatedProperties": false
+    },
+    "resolution": {
+      "type": "object",
+      "required": ["width", "height"],
+      "properties": {
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 },
+        "label": { "type": "string", "maxLength": 80 }
+      },
+      "unevaluatedProperties": false
+    },
+    "rect": {
+      "type": "object",
+      "required": ["x", "y", "width", "height"],
+      "properties": {
+        "x": { "type": "number", "minimum": 0, "maximum": 1 },
+        "y": { "type": "number", "minimum": 0, "maximum": 1 },
+        "width": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+        "height": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 }
+      },
+      "unevaluatedProperties": false
+    },
+    "zone": {
+      "type": "object",
+      "required": ["zone_id", "name", "rect", "applies_to"],
+      "properties": {
+        "zone_id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "rect": { "$ref": "#/$defs/rect" },
+        "applies_to": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["subject", "face", "critical_prop", "subtitle", "branding", "all"]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["evidence_id", "source_type", "title", "url", "publisher", "verified_at", "content_hash"],
+      "properties": {
+        "evidence_id": { "$ref": "#/$defs/id" },
+        "source_type": {
+          "type": "string",
+          "enum": ["official_policy", "official_help", "account_snapshot", "contract", "test_result", "other"]
+        },
+        "title": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "url": { "type": "string", "format": "uri" },
+        "publisher": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "verified_at": { "$ref": "#/$defs/dateTime" },
+        "content_hash": { "$ref": "#/$defs/hash" }
+      },
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

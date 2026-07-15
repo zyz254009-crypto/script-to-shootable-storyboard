@@ -1,0 +1,473 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/hook-contract.schema.json",
+  "title": "Hook Contract",
+  "description": "记录短剧钩子的画面承诺、观众问题、风险、延期、兑现或经授权的开放结局，并阻止只制造噱头不兑现。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "hook_id",
+    "job_id",
+    "hook_type",
+    "promise_beat_ids",
+    "promise_shot_ids",
+    "viewer_question",
+    "stakes",
+    "visible_or_audible_evidence",
+    "delay_beat_ids",
+    "delay_functions",
+    "payoff_beat_ids",
+    "payoff_type",
+    "status",
+    "authorized_change",
+    "platform_profile_id",
+    "target_window",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "#/$defs/semver"
+    },
+    "created_at": {
+      "$ref": "#/$defs/dateTime"
+    },
+    "created_by_stage": {
+      "$ref": "#/$defs/stageId"
+    },
+    "source_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "hook_id": {
+      "$ref": "#/$defs/id"
+    },
+    "job_id": {
+      "$ref": "#/$defs/id"
+    },
+    "episode_id": {
+      "$ref": "#/$defs/id"
+    },
+    "hook_type": {
+      "type": "string",
+      "enum": [
+        "result_first",
+        "visual_anomaly",
+        "identity_contrast",
+        "deadline",
+        "public_conflict",
+        "approaching_danger",
+        "rule_break",
+        "critical_evidence",
+        "unfinished_action",
+        "dramatic_irony",
+        "other"
+      ]
+    },
+    "promise_beat_ids": {
+      "$ref": "#/$defs/nonEmptyIdList"
+    },
+    "promise_shot_ids": {
+      "$ref": "#/$defs/nonEmptyIdList"
+    },
+    "viewer_question": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    },
+    "stakes": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    },
+    "visible_or_audible_evidence": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000
+      },
+      "minItems": 1
+    },
+    "delay_beat_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "delay_functions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/delayFunction"
+      }
+    },
+    "payoff_beat_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "payoff_shot_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "payoff_type": {
+      "type": "string",
+      "enum": [
+        "answer",
+        "partial_answer",
+        "reversal",
+        "escalation",
+        "identity_reveal",
+        "evidence_reveal",
+        "consequence",
+        "deferred",
+        "open_ending"
+      ]
+    },
+    "payoff_evidence": {
+      "type": "string",
+      "maxLength": 1500
+    },
+    "payoff_contract": {
+      "$ref": "#/$defs/payoffContract"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "paid_off",
+        "deferred_to_episode",
+        "intentionally_unresolved",
+        "blocked"
+      ]
+    },
+    "deferred_to_episode": {
+      "$ref": "#/$defs/id"
+    },
+    "next_episode_bridge_beat_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "authorized_change": {
+      "type": "boolean",
+      "default": false
+    },
+    "authorization_id": {
+      "$ref": "#/$defs/id"
+    },
+    "platform_profile_id": {
+      "$ref": "#/$defs/id"
+    },
+    "genre_profile_id": {
+      "$ref": "#/$defs/id"
+    },
+    "target_window": {
+      "type": "object",
+      "required": [
+        "timebase",
+        "start_seconds",
+        "end_seconds"
+      ],
+      "properties": {
+        "timebase": {
+          "type": "string",
+          "enum": [
+            "episode",
+            "video"
+          ]
+        },
+        "start_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "end_seconds": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "profile_version": {
+          "$ref": "#/$defs/semver"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "blocking_issue_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "field_provenance": {
+      "$ref": "#/$defs/fieldProvenance"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "paid_off"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "payoff_evidence",
+          "payoff_shot_ids",
+          "payoff_contract"
+        ],
+        "properties": {
+          "payoff_beat_ids": {
+            "minItems": 1
+          },
+          "payoff_shot_ids": {
+            "minItems": 1
+          },
+          "payoff_type": {
+            "not": {
+              "enum": [
+                "deferred",
+                "open_ending"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "deferred_to_episode"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "deferred_to_episode",
+          "next_episode_bridge_beat_ids"
+        ],
+        "properties": {
+          "next_episode_bridge_beat_ids": {
+            "minItems": 1
+          },
+          "payoff_type": {
+            "const": "deferred"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "intentionally_unresolved"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "authorization_id"
+        ],
+        "properties": {
+          "payoff_type": {
+            "const": "open_ending"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "authorized_change": {
+            "const": true
+          }
+        },
+        "required": [
+          "authorized_change"
+        ]
+      },
+      "then": {
+        "required": [
+          "authorization_id"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "blocked"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "blocking_issue_ids"
+        ],
+        "properties": {
+          "blocking_issue_ids": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "id": {
+      "$ref": "provenance.schema.json#/$defs/artifactId"
+    },
+    "semver": {
+      "$ref": "provenance.schema.json#/$defs/semver"
+    },
+    "dateTime": {
+      "$ref": "provenance.schema.json#/$defs/dateTime"
+    },
+    "stageId": {
+      "$ref": "provenance.schema.json#/$defs/stageId"
+    },
+    "hash": {
+      "$ref": "provenance.schema.json#/$defs/hash"
+    },
+    "fieldProvenance": {
+      "$ref": "provenance.schema.json#/$defs/fieldProvenance"
+    },
+    "idList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "uniqueItems": true
+    },
+    "nonEmptyIdList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "delayFunction": {
+      "type": "object",
+      "required": [
+        "beat_id",
+        "function",
+        "new_information_or_pressure"
+      ],
+      "properties": {
+        "beat_id": {
+          "$ref": "#/$defs/id"
+        },
+        "function": {
+          "type": "string",
+          "enum": [
+            "increase_pressure",
+            "add_evidence",
+            "misdirect_with_existing_fact",
+            "block_action",
+            "raise_cost",
+            "partial_answer"
+          ]
+        },
+        "new_information_or_pressure": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "payoffContract": {
+      "type": "object",
+      "required": [
+        "payoff_id",
+        "setup_beat_ids",
+        "pressure_state",
+        "protagonist_action_beat_ids",
+        "evidence_ids",
+        "consequence_beat_ids",
+        "new_state",
+        "opponent_response",
+        "authorized_change",
+        "clarity_score",
+        "causal_score",
+        "earned_score"
+      ],
+      "properties": {
+        "payoff_id": {
+          "$ref": "#/$defs/id"
+        },
+        "setup_beat_ids": {
+          "$ref": "#/$defs/nonEmptyIdList"
+        },
+        "pressure_state": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "protagonist_action_beat_ids": {
+          "$ref": "#/$defs/nonEmptyIdList"
+        },
+        "evidence_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "consequence_beat_ids": {
+          "$ref": "#/$defs/nonEmptyIdList"
+        },
+        "new_state": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "opponent_response": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "authorized_change": {
+          "type": "boolean"
+        },
+        "authorization_id": {
+          "$ref": "#/$defs/id"
+        },
+        "clarity_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "causal_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "earned_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "authorized_change": {
+                "const": true
+              }
+            },
+            "required": [
+              "authorized_change"
+            ]
+          },
+          "then": {
+            "required": [
+              "authorization_id"
+            ]
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

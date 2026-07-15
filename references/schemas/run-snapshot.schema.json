@@ -1,0 +1,298 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/run-snapshot.schema.json",
+  "title": "Run Snapshot",
+  "description": "冻结一次转换、校验、生成、评测或迁移运行所需的输入、包、规则、模型、环境、成本和结果证据，以区分确定性重放与统计复现。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "run_snapshot_id",
+    "run_id",
+    "job_id",
+    "run_type",
+    "started_at",
+    "status",
+    "artifact_hashes",
+    "model_bindings",
+    "runtime_environment",
+    "reproduction",
+    "request_records",
+    "result_records",
+    "actual_cost",
+    "failure_codes",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": { "$ref": "#/$defs/semver" },
+    "created_at": { "$ref": "#/$defs/dateTime" },
+    "created_by_stage": { "$ref": "#/$defs/stageId" },
+    "source_hash": { "$ref": "#/$defs/hash" },
+    "run_snapshot_id": { "$ref": "#/$defs/id" },
+    "run_id": { "$ref": "#/$defs/id" },
+    "job_id": { "$ref": "#/$defs/id" },
+    "run_type": {
+      "type": "string",
+      "enum": ["transform", "validate", "semantic_review", "generate", "evaluate", "migrate", "release_audit"]
+    },
+    "started_at": { "$ref": "#/$defs/dateTime" },
+    "completed_at": { "$ref": "#/$defs/dateTime" },
+    "status": {
+      "type": "string",
+      "enum": ["planned", "running", "succeeded", "partial", "failed", "cancelled"]
+    },
+    "artifact_hashes": {
+      "type": "object",
+      "required": [
+        "input_package_hash",
+        "skill_package_hash",
+        "skill_md_hash",
+        "schema_bundle_hash",
+        "rule_registry_hash",
+        "source_catalog_hash"
+      ],
+      "properties": {
+        "input_package_hash": { "$ref": "#/$defs/hash" },
+        "skill_package_hash": { "$ref": "#/$defs/hash" },
+        "skill_md_hash": { "$ref": "#/$defs/hash" },
+        "schema_bundle_hash": { "$ref": "#/$defs/hash" },
+        "rule_registry_hash": { "$ref": "#/$defs/hash" },
+        "source_catalog_hash": { "$ref": "#/$defs/hash" },
+        "metrics_config_hash": { "$ref": "#/$defs/hash" },
+        "rubric_hash": { "$ref": "#/$defs/hash" },
+        "dependency_lock_hash": { "$ref": "#/$defs/hash" },
+        "sealed_manifest_hash": { "$ref": "#/$defs/hash" }
+      },
+      "unevaluatedProperties": false
+    },
+    "registry_bindings": {
+      "type": "object",
+      "properties": {
+        "model_registry_version": { "$ref": "#/$defs/semver" },
+        "model_registry_hash": { "$ref": "#/$defs/hash" },
+        "platform_profile_ids": { "$ref": "#/$defs/idList" },
+        "genre_profile_ids": { "$ref": "#/$defs/idList" },
+        "rights_manifest_id": { "$ref": "#/$defs/id" }
+      },
+      "unevaluatedProperties": false
+    },
+    "model_bindings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/modelBinding" }
+    },
+    "runtime_environment": {
+      "type": "object",
+      "required": [
+        "operating_system",
+        "architecture",
+        "interpreter",
+        "interpreter_version",
+        "runtime_dependencies",
+        "network_mode"
+      ],
+      "properties": {
+        "operating_system": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "architecture": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "interpreter": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "interpreter_version": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "runtime_dependencies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "version", "source"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1, "maxLength": 150 },
+              "version": { "type": "string", "minLength": 1, "maxLength": 100 },
+              "source": { "type": "string", "minLength": 1, "maxLength": 500 },
+              "artifact_hash": { "$ref": "#/$defs/hash" }
+            },
+            "unevaluatedProperties": false
+          }
+        },
+        "container_or_image_digest": { "type": "string", "maxLength": 300 },
+        "hardware_summary": { "type": "string", "maxLength": 1000 },
+        "locale": { "type": "string", "maxLength": 80 },
+        "timezone": { "type": "string", "maxLength": 80 },
+        "network_mode": { "type": "string", "enum": ["offline", "restricted", "online", "provider_managed"] }
+      },
+      "unevaluatedProperties": false
+    },
+    "reproduction": {
+      "type": "object",
+      "required": ["mode", "claim_scope", "randomness_control", "repeat_count"],
+      "properties": {
+        "mode": { "type": "string", "enum": ["deterministic_replay", "statistical_reproduction", "not_reproducible"] },
+        "claim_scope": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "randomness_control": {
+          "type": "string",
+          "enum": ["fixed_seed", "recorded_seed", "provider_uncontrolled", "not_applicable"]
+        },
+        "seed_values": {
+          "type": "array",
+          "items": { "oneOf": [{ "type": "integer" }, { "type": "string", "maxLength": 200 }] }
+        },
+        "repeat_count": { "type": "integer", "minimum": 1 },
+        "distribution_comparison_method": { "type": "string", "maxLength": 300 },
+        "expected_tolerance": { "type": "number", "minimum": 0 }
+      },
+      "unevaluatedProperties": false
+    },
+    "request_records": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/requestRecord" }
+    },
+    "result_records": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/resultRecord" }
+    },
+    "semantic_review": {
+      "type": "object",
+      "properties": {
+        "semantic_review_run_ids": { "$ref": "#/$defs/idList" },
+        "review_model_profile_ids": { "$ref": "#/$defs/idList" },
+        "review_parameters_hash": { "$ref": "#/$defs/hash" }
+      },
+      "unevaluatedProperties": false
+    },
+    "actual_cost": { "$ref": "#/$defs/money" },
+    "failure_codes": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/failure" }
+    },
+    "logs_hash": { "$ref": "#/$defs/hash" },
+    "field_provenance": { "$ref": "#/$defs/fieldProvenance" }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "status": { "enum": ["succeeded", "partial", "failed", "cancelled"] } },
+        "required": ["status"]
+      },
+      "then": { "required": ["completed_at"] }
+    },
+    {
+      "if": {
+        "properties": {
+          "reproduction": {
+            "properties": { "mode": { "const": "deterministic_replay" } },
+            "required": ["mode"]
+          }
+        },
+        "required": ["reproduction"]
+      },
+      "then": {
+        "properties": {
+          "reproduction": {
+            "required": ["seed_values"],
+            "properties": {
+              "randomness_control": { "enum": ["fixed_seed", "recorded_seed", "not_applicable"] }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "id": { "$ref": "provenance.schema.json#/$defs/artifactId" },
+    "semver": { "$ref": "provenance.schema.json#/$defs/semver" },
+    "dateTime": { "$ref": "provenance.schema.json#/$defs/dateTime" },
+    "stageId": { "$ref": "provenance.schema.json#/$defs/stageId" },
+    "hash": { "$ref": "provenance.schema.json#/$defs/hash" },
+    "fieldProvenance": { "$ref": "provenance.schema.json#/$defs/fieldProvenance" },
+    "idList": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/id" },
+      "uniqueItems": true
+    },
+    "jsonValue": {
+      "oneOf": [
+        { "type": ["string", "number", "integer", "boolean", "null"] },
+        { "type": "array", "items": { "$ref": "#/$defs/jsonValue" } },
+        { "type": "object", "additionalProperties": { "$ref": "#/$defs/jsonValue" } }
+      ]
+    },
+    "money": {
+      "type": "object",
+      "required": ["amount", "currency", "tax_included"],
+      "properties": {
+        "amount": { "type": "number", "minimum": 0 },
+        "currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+        "tax_included": { "type": "boolean" },
+        "pricing_snapshot_hash": { "$ref": "#/$defs/hash" }
+      },
+      "unevaluatedProperties": false
+    },
+    "modelBinding": {
+      "type": "object",
+      "required": [
+        "role",
+        "model_profile_id",
+        "model_build",
+        "provider_entry",
+        "region",
+        "account_tier",
+        "parameters_hash"
+      ],
+      "properties": {
+        "role": { "type": "string", "enum": ["generation", "semantic_review", "scoring", "other"] },
+        "model_profile_id": { "$ref": "#/$defs/id" },
+        "model_build": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "provider_entry": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "region": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "account_tier": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "parameters_hash": { "$ref": "#/$defs/hash" },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/jsonValue" }
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "requestRecord": {
+      "type": "object",
+      "required": ["request_id", "request_type", "submitted_at", "request_hash"],
+      "properties": {
+        "request_id": { "$ref": "#/$defs/id" },
+        "request_type": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "submitted_at": { "$ref": "#/$defs/dateTime" },
+        "request_hash": { "$ref": "#/$defs/hash" },
+        "related_artifact_ids": { "$ref": "#/$defs/idList" },
+        "provider_request_id": { "type": "string", "maxLength": 300 }
+      },
+      "unevaluatedProperties": false
+    },
+    "resultRecord": {
+      "type": "object",
+      "required": ["result_id", "status", "result_hashes"],
+      "properties": {
+        "result_id": { "$ref": "#/$defs/id" },
+        "status": { "type": "string", "enum": ["succeeded", "partial", "failed", "cancelled"] },
+        "result_hashes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/hash" },
+          "uniqueItems": true
+        },
+        "asset_ids": { "$ref": "#/$defs/idList" },
+        "latency_seconds": { "type": "number", "minimum": 0 }
+      },
+      "unevaluatedProperties": false
+    },
+    "failure": {
+      "type": "object",
+      "required": ["code", "category", "severity", "description"],
+      "properties": {
+        "code": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "category": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "severity": {
+          "type": "string",
+          "enum": ["blocker", "critical", "error", "warning", "info"]
+        },
+        "description": { "type": "string", "minLength": 1, "maxLength": 1000 }
+      },
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

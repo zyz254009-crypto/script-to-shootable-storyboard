@@ -1,0 +1,685 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/blocking-plan.schema.json",
+  "title": "Blocking Plan",
+  "description": "定义场景坐标、演员 Mark、行动路线、遮挡、视线、轴线、道具位置与平台画幅约束。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "blocking_plan_id",
+    "job_id",
+    "scene_id",
+    "beat_ids",
+    "coordinate_system",
+    "platform_profile_id",
+    "aspect_ratio",
+    "safe_zone_id",
+    "subtitle_zone_id",
+    "ui_occlusion_zone_ids",
+    "actor_marks",
+    "movement_paths",
+    "action_phases",
+    "foreground_midground_background",
+    "occlusion_relations",
+    "eyeline_targets",
+    "screen_axis",
+    "axis_crossing_plan",
+    "prop_positions",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "#/$defs/semver"
+    },
+    "created_at": {
+      "$ref": "#/$defs/dateTime"
+    },
+    "created_by_stage": {
+      "$ref": "#/$defs/stageId"
+    },
+    "source_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "blocking_plan_id": {
+      "$ref": "#/$defs/id"
+    },
+    "job_id": {
+      "$ref": "#/$defs/id"
+    },
+    "scene_id": {
+      "$ref": "#/$defs/id"
+    },
+    "beat_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "floor_plan_asset_id": {
+      "$ref": "#/$defs/id"
+    },
+    "coordinate_system": {
+      "$ref": "#/$defs/coordinateSystem"
+    },
+    "platform_profile_id": {
+      "$ref": "#/$defs/id"
+    },
+    "aspect_ratio": {
+      "$ref": "#/$defs/aspectRatio"
+    },
+    "safe_zone_id": {
+      "$ref": "#/$defs/id"
+    },
+    "subtitle_zone_id": {
+      "$ref": "#/$defs/id"
+    },
+    "ui_occlusion_zone_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "uniqueItems": true
+    },
+    "actor_marks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/actorMark"
+      },
+      "minItems": 1
+    },
+    "movement_paths": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/movementPath"
+      }
+    },
+    "action_phases": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/actionPhase"
+      },
+      "minItems": 1
+    },
+    "foreground_midground_background": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/depthAssignment"
+      },
+      "minItems": 1
+    },
+    "occlusion_relations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/occlusionRelation"
+      }
+    },
+    "eyeline_targets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/eyelineTarget"
+      }
+    },
+    "screen_axis": {
+      "$ref": "#/$defs/screenAxis"
+    },
+    "moving_axis": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/movingAxis"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "axis_crossing_plan": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/axisCrossing"
+      }
+    },
+    "prop_positions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/propPosition"
+      }
+    },
+    "provisional_shot_intent_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "uniqueItems": true
+    },
+    "field_provenance": {
+      "$ref": "#/$defs/fieldProvenance"
+    }
+  },
+  "$defs": {
+    "id": {
+      "$ref": "provenance.schema.json#/$defs/artifactId"
+    },
+    "semver": {
+      "$ref": "provenance.schema.json#/$defs/semver"
+    },
+    "dateTime": {
+      "$ref": "provenance.schema.json#/$defs/dateTime"
+    },
+    "stageId": {
+      "$ref": "provenance.schema.json#/$defs/stageId"
+    },
+    "hash": {
+      "$ref": "provenance.schema.json#/$defs/hash"
+    },
+    "fieldProvenance": {
+      "$ref": "provenance.schema.json#/$defs/fieldProvenance"
+    },
+    "idList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "aspectRatio": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]{0,3}:[1-9][0-9]{0,3}$"
+    },
+    "point": {
+      "type": "object",
+      "required": [
+        "x",
+        "y",
+        "z"
+      ],
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "coordinateSystem": {
+      "type": "object",
+      "required": [
+        "coordinate_system_id",
+        "units",
+        "origin_description",
+        "x_axis_description",
+        "y_axis_description",
+        "z_axis_description"
+      ],
+      "properties": {
+        "coordinate_system_id": {
+          "$ref": "#/$defs/id"
+        },
+        "units": {
+          "type": "string",
+          "enum": [
+            "meters",
+            "centimeters",
+            "normalized"
+          ]
+        },
+        "origin_description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "x_axis_description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "y_axis_description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "z_axis_description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "bounds": {
+          "type": "object",
+          "required": [
+            "minimum",
+            "maximum"
+          ],
+          "properties": {
+            "minimum": {
+              "$ref": "#/$defs/point"
+            },
+            "maximum": {
+              "$ref": "#/$defs/point"
+            }
+          },
+          "unevaluatedProperties": false
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "actorMark": {
+      "type": "object",
+      "required": [
+        "mark_id",
+        "character_id",
+        "position",
+        "facing_degrees",
+        "action_phase_ids"
+      ],
+      "properties": {
+        "mark_id": {
+          "$ref": "#/$defs/id"
+        },
+        "character_id": {
+          "$ref": "#/$defs/id"
+        },
+        "position": {
+          "$ref": "#/$defs/point"
+        },
+        "facing_degrees": {
+          "type": "number",
+          "minimum": 0,
+          "exclusiveMaximum": 360
+        },
+        "action_phase_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "beat_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "pose": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "reachable": {
+          "type": "boolean",
+          "const": true
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "waypoint": {
+      "type": "object",
+      "required": [
+        "sequence",
+        "position"
+      ],
+      "properties": {
+        "sequence": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "position": {
+          "$ref": "#/$defs/point"
+        },
+        "facing_degrees": {
+          "type": "number",
+          "minimum": 0,
+          "exclusiveMaximum": 360
+        },
+        "action_cue": {
+          "type": "string",
+          "maxLength": 500
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "movementPath": {
+      "type": "object",
+      "required": [
+        "movement_path_id",
+        "character_id",
+        "from_mark_id",
+        "to_mark_id",
+        "waypoints",
+        "action_phase_ids",
+        "beat_ids"
+      ],
+      "properties": {
+        "movement_path_id": {
+          "$ref": "#/$defs/id"
+        },
+        "character_id": {
+          "$ref": "#/$defs/id"
+        },
+        "from_mark_id": {
+          "$ref": "#/$defs/id"
+        },
+        "to_mark_id": {
+          "$ref": "#/$defs/id"
+        },
+        "waypoints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/waypoint"
+          }
+        },
+        "action_phase_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "beat_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "duration_seconds": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "minimum_clearance": {
+          "type": "number",
+          "minimum": 0
+        },
+        "collision_checked": {
+          "type": "boolean"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "actionPhase": {
+      "type": "object",
+      "required": [
+        "action_phase_id",
+        "sequence",
+        "description",
+        "beat_ids",
+        "participant_character_ids"
+      ],
+      "properties": {
+        "action_phase_id": {
+          "$ref": "#/$defs/id"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "beat_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "participant_character_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "predecessor_phase_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true
+        },
+        "minimum_gap_seconds": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "depthAssignment": {
+      "type": "object",
+      "required": [
+        "subject_id",
+        "layer",
+        "action_phase_ids"
+      ],
+      "properties": {
+        "subject_id": {
+          "$ref": "#/$defs/id"
+        },
+        "layer": {
+          "type": "string",
+          "enum": [
+            "foreground",
+            "midground",
+            "background"
+          ]
+        },
+        "action_phase_ids": {
+          "$ref": "#/$defs/idList"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "occlusionRelation": {
+      "type": "object",
+      "required": [
+        "occlusion_id",
+        "occluder_id",
+        "occluded_subject_id",
+        "action_phase_ids",
+        "readability"
+      ],
+      "properties": {
+        "occlusion_id": {
+          "$ref": "#/$defs/id"
+        },
+        "occluder_id": {
+          "$ref": "#/$defs/id"
+        },
+        "occluded_subject_id": {
+          "$ref": "#/$defs/id"
+        },
+        "action_phase_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "readability": {
+          "type": "string",
+          "enum": [
+            "clear",
+            "partial_intentional",
+            "fully_hidden_intentional",
+            "unacceptable"
+          ]
+        },
+        "editorial_reason": {
+          "type": "string",
+          "maxLength": 500
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "eyelineTarget": {
+      "type": "object",
+      "required": [
+        "eyeline_id",
+        "viewer_character_id",
+        "target_id",
+        "action_phase_ids",
+        "screen_direction"
+      ],
+      "properties": {
+        "eyeline_id": {
+          "$ref": "#/$defs/id"
+        },
+        "viewer_character_id": {
+          "$ref": "#/$defs/id"
+        },
+        "target_id": {
+          "$ref": "#/$defs/id"
+        },
+        "action_phase_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "screen_direction": {
+          "type": "string",
+          "enum": [
+            "screen_left",
+            "screen_right",
+            "camera",
+            "up",
+            "down",
+            "offscreen_unspecified"
+          ]
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "screenAxis": {
+      "type": "object",
+      "required": [
+        "axis_id",
+        "point_a",
+        "point_b",
+        "preferred_camera_side"
+      ],
+      "properties": {
+        "axis_id": {
+          "$ref": "#/$defs/id"
+        },
+        "point_a": {
+          "$ref": "#/$defs/point"
+        },
+        "point_b": {
+          "$ref": "#/$defs/point"
+        },
+        "subject_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "preferred_camera_side": {
+          "type": "string",
+          "enum": [
+            "left",
+            "right",
+            "on_axis"
+          ]
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "movingAxis": {
+      "type": "object",
+      "required": [
+        "moving_axis_id",
+        "driver_character_ids",
+        "movement_path_ids",
+        "recalculation_rule"
+      ],
+      "properties": {
+        "moving_axis_id": {
+          "$ref": "#/$defs/id"
+        },
+        "driver_character_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "movement_path_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "recalculation_rule": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "axisCrossing": {
+      "type": "object",
+      "required": [
+        "axis_crossing_id",
+        "axis_id",
+        "method",
+        "action_phase_ids"
+      ],
+      "properties": {
+        "axis_crossing_id": {
+          "$ref": "#/$defs/id"
+        },
+        "axis_id": {
+          "$ref": "#/$defs/id"
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "visible_camera_or_subject_move",
+            "neutral_or_on_axis_reestablish",
+            "establishing_shot_redefines_space",
+            "intentional_disorientation"
+          ]
+        },
+        "action_phase_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "provisional_shot_intent_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "authorization_id": {
+          "$ref": "#/$defs/id"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "intentional_disorientation"
+              }
+            },
+            "required": [
+              "method"
+            ]
+          },
+          "then": {
+            "required": [
+              "authorization_id",
+              "reason"
+            ]
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "propPosition": {
+      "type": "object",
+      "required": [
+        "prop_position_id",
+        "prop_id",
+        "position",
+        "action_phase_ids"
+      ],
+      "properties": {
+        "prop_position_id": {
+          "$ref": "#/$defs/id"
+        },
+        "prop_id": {
+          "$ref": "#/$defs/id"
+        },
+        "holder_character_id": {
+          "$ref": "#/$defs/id"
+        },
+        "holder_hand": {
+          "type": "string",
+          "enum": [
+            "left",
+            "right",
+            "both",
+            "not_held"
+          ]
+        },
+        "position": {
+          "$ref": "#/$defs/point"
+        },
+        "action_phase_ids": {
+          "$ref": "#/$defs/idList"
+        }
+      },
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

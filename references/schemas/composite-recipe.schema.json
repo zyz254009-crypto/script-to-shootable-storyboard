@@ -1,0 +1,522 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/composite-recipe.schema.json",
+  "title": "Composite Recipe",
+  "description": "记录混合制作或修复合成的输入资产、遮罩、跟踪、层级、变换、色彩、渲染参数、输出资产和权利继承决议。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "composite_recipe_id",
+    "job_id",
+    "shot_ids",
+    "input_media_asset_ids",
+    "mask_asset_ids",
+    "tracking_data_asset_ids",
+    "layers",
+    "transform_parameters",
+    "color_management",
+    "render_engine",
+    "render_parameters",
+    "status",
+    "rights_resolution",
+    "recipe_hash",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "#/$defs/semver"
+    },
+    "created_at": {
+      "$ref": "#/$defs/dateTime"
+    },
+    "created_by_stage": {
+      "$ref": "#/$defs/stageId"
+    },
+    "source_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "composite_recipe_id": {
+      "$ref": "#/$defs/id"
+    },
+    "job_id": {
+      "$ref": "#/$defs/id"
+    },
+    "shot_ids": {
+      "$ref": "#/$defs/nonEmptyIdList"
+    },
+    "input_media_asset_ids": {
+      "$ref": "#/$defs/nonEmptyIdList"
+    },
+    "mask_asset_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "tracking_data_asset_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "clean_plate_asset_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "layers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/layer"
+      },
+      "minItems": 1
+    },
+    "transform_parameters": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/transform"
+      }
+    },
+    "color_management": {
+      "type": "object",
+      "required": [
+        "working_space",
+        "input_transforms",
+        "output_space",
+        "view_transform"
+      ],
+      "properties": {
+        "working_space": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "input_transforms": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "asset_id",
+              "transform"
+            ],
+            "properties": {
+              "asset_id": {
+                "$ref": "#/$defs/id"
+              },
+              "transform": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              }
+            },
+            "unevaluatedProperties": false
+          }
+        },
+        "output_space": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "view_transform": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "grain_match": {
+          "type": "string",
+          "maxLength": 500
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "render_engine": {
+      "type": "object",
+      "required": [
+        "name",
+        "version"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "plugin_versions": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "render_parameters": {
+      "type": "object",
+      "required": [
+        "width",
+        "height",
+        "frame_rate",
+        "codec",
+        "bit_depth"
+      ],
+      "properties": {
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "frame_rate": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "codec": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "bit_depth": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "alpha": {
+          "type": "boolean"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "planned",
+        "in_progress",
+        "rendered",
+        "failed",
+        "blocked"
+      ]
+    },
+    "output_media_asset_id": {
+      "$ref": "#/$defs/id"
+    },
+    "failure_issue_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "rights_resolution": {
+      "$ref": "#/$defs/rightsResolution"
+    },
+    "recipe_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "field_provenance": {
+      "$ref": "#/$defs/fieldProvenance"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "rendered"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "output_media_asset_id"
+        ],
+        "properties": {
+          "rights_resolution": {
+            "properties": {
+              "status": {
+                "const": "resolved"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "failed",
+              "blocked"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "failure_issue_ids"
+        ],
+        "properties": {
+          "failure_issue_ids": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "id": {
+      "$ref": "provenance.schema.json#/$defs/artifactId"
+    },
+    "semver": {
+      "$ref": "provenance.schema.json#/$defs/semver"
+    },
+    "dateTime": {
+      "$ref": "provenance.schema.json#/$defs/dateTime"
+    },
+    "stageId": {
+      "$ref": "provenance.schema.json#/$defs/stageId"
+    },
+    "hash": {
+      "$ref": "provenance.schema.json#/$defs/hash"
+    },
+    "fieldProvenance": {
+      "$ref": "provenance.schema.json#/$defs/fieldProvenance"
+    },
+    "idList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "uniqueItems": true
+    },
+    "nonEmptyIdList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "layer": {
+      "type": "object",
+      "required": [
+        "layer_id",
+        "order",
+        "asset_id",
+        "role",
+        "blend_mode",
+        "opacity"
+      ],
+      "properties": {
+        "layer_id": {
+          "$ref": "#/$defs/id"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "asset_id": {
+          "$ref": "#/$defs/id"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "background",
+            "plate",
+            "subject",
+            "effect",
+            "repair",
+            "mask",
+            "overlay",
+            "grade_reference"
+          ]
+        },
+        "mask_asset_id": {
+          "$ref": "#/$defs/id"
+        },
+        "tracking_data_asset_id": {
+          "$ref": "#/$defs/id"
+        },
+        "blend_mode": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "opacity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "source_in_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "source_out_seconds": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "transform": {
+      "type": "object",
+      "required": [
+        "layer_id",
+        "parameter",
+        "value",
+        "time_seconds"
+      ],
+      "properties": {
+        "layer_id": {
+          "$ref": "#/$defs/id"
+        },
+        "parameter": {
+          "type": "string",
+          "enum": [
+            "position_x",
+            "position_y",
+            "position_z",
+            "scale_x",
+            "scale_y",
+            "rotation_x",
+            "rotation_y",
+            "rotation_z",
+            "opacity",
+            "crop",
+            "warp",
+            "other"
+          ]
+        },
+        "value": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 1
+            }
+          ]
+        },
+        "time_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "interpolation": {
+          "type": "string",
+          "enum": [
+            "hold",
+            "linear",
+            "bezier",
+            "other"
+          ]
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "rightsResolution": {
+      "type": "object",
+      "required": [
+        "resolution_id",
+        "upstream_rights_record_ids",
+        "merge_policy",
+        "resolved_constraints",
+        "status"
+      ],
+      "properties": {
+        "resolution_id": {
+          "$ref": "#/$defs/id"
+        },
+        "upstream_rights_record_ids": {
+          "$ref": "#/$defs/nonEmptyIdList"
+        },
+        "merge_policy": {
+          "type": "string",
+          "const": "most_restrictive_wins"
+        },
+        "resolved_constraints": {
+          "type": "object",
+          "required": [
+            "territories",
+            "expiry",
+            "commercial_use",
+            "derivative_use",
+            "ai_use",
+            "attribution",
+            "withdrawal"
+          ],
+          "properties": {
+            "territories": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Z]{2}$"
+              },
+              "uniqueItems": true
+            },
+            "expiry": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time"
+            },
+            "commercial_use": {
+              "$ref": "#/$defs/permission"
+            },
+            "derivative_use": {
+              "$ref": "#/$defs/permission"
+            },
+            "ai_use": {
+              "$ref": "#/$defs/permission"
+            },
+            "attribution": {
+              "type": "string",
+              "maxLength": 1000
+            },
+            "withdrawal": {
+              "type": "string",
+              "maxLength": 1000
+            }
+          },
+          "unevaluatedProperties": false
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "resolved",
+            "pending",
+            "blocked"
+          ]
+        },
+        "reviewer_id": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "permission": {
+      "type": "string",
+      "enum": [
+        "allowed",
+        "conditional",
+        "forbidden",
+        "unknown"
+      ]
+    }
+  },
+  "unevaluatedProperties": false
+}

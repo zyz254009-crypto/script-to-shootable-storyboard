@@ -1,0 +1,284 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/model-registry.schema.json",
+  "title": "Model Registry",
+  "description": "记录视频、音频和语义审核模型的版本化能力、入口、地区限制、证据、价格、实测结果、生产建议与陈旧状态。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "registry_id",
+    "registry_version",
+    "verified_at",
+    "stale_after_days",
+    "models",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": { "$ref": "#/$defs/semver" },
+    "created_at": { "$ref": "#/$defs/dateTime" },
+    "created_by_stage": { "$ref": "#/$defs/stageId" },
+    "source_hash": { "$ref": "#/$defs/hash" },
+    "registry_id": { "$ref": "#/$defs/id" },
+    "registry_version": { "$ref": "#/$defs/semver" },
+    "verified_at": { "$ref": "#/$defs/dateTime" },
+    "stale_after_days": { "type": "integer", "minimum": 1, "maximum": 365 },
+    "models": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/modelProfile" },
+      "minItems": 1
+    },
+    "field_provenance": { "$ref": "#/$defs/fieldProvenance" }
+  },
+  "$defs": {
+    "id": { "$ref": "provenance.schema.json#/$defs/artifactId" },
+    "semver": { "$ref": "provenance.schema.json#/$defs/semver" },
+    "dateTime": { "$ref": "provenance.schema.json#/$defs/dateTime" },
+    "stageId": { "$ref": "provenance.schema.json#/$defs/stageId" },
+    "hash": { "$ref": "provenance.schema.json#/$defs/hash" },
+    "fieldProvenance": { "$ref": "provenance.schema.json#/$defs/fieldProvenance" },
+    "idList": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/id" },
+      "uniqueItems": true
+    },
+    "jsonValue": {
+      "oneOf": [
+        { "type": ["string", "number", "integer", "boolean", "null"] },
+        { "type": "array", "items": { "$ref": "#/$defs/jsonValue" } },
+        { "type": "object", "additionalProperties": { "$ref": "#/$defs/jsonValue" } }
+      ]
+    },
+    "money": {
+      "type": "object",
+      "required": ["amount", "currency", "pricing_unit", "tax_included", "verified_at"],
+      "properties": {
+        "amount": { "type": "number", "minimum": 0 },
+        "currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+        "pricing_unit": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "tax_included": { "type": "boolean" },
+        "tax_rate": { "type": "number", "minimum": 0 },
+        "verified_at": { "$ref": "#/$defs/dateTime" },
+        "region": { "type": "string", "maxLength": 100 },
+        "evidence_id": { "$ref": "#/$defs/id" }
+      },
+      "unevaluatedProperties": false
+    },
+    "evidence": {
+      "type": "object",
+      "required": [
+        "evidence_id",
+        "grade",
+        "source_type",
+        "title",
+        "url",
+        "publisher",
+        "canonical_identifier",
+        "verified_at",
+        "content_hash",
+        "supports_claims"
+      ],
+      "properties": {
+        "evidence_id": { "$ref": "#/$defs/id" },
+        "grade": { "type": "string", "enum": ["primary", "author", "independent_test", "vendor_claim", "unknown"] },
+        "source_type": {
+          "type": "string",
+          "enum": ["official_page", "official_document", "paper", "account_snapshot", "api_response", "benchmark", "other"]
+        },
+        "title": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "url": { "type": "string", "format": "uri" },
+        "publisher": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "canonical_identifier": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "verified_at": { "$ref": "#/$defs/dateTime" },
+        "content_hash": { "$ref": "#/$defs/hash" },
+        "supports_claims": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "maxLength": 300 },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "limitations": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "maxLength": 500 }
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "capability": {
+      "type": "object",
+      "required": ["status", "source_class", "evidence_ids"],
+      "properties": {
+        "status": { "type": "string", "enum": ["supported", "unsupported", "limited", "unknown"] },
+        "source_class": { "type": "string", "enum": ["official", "internal_recommendation", "measured", "unknown"] },
+        "value": { "$ref": "#/$defs/jsonValue" },
+        "evidence_ids": { "$ref": "#/$defs/idList" },
+        "notes": { "type": "string", "maxLength": 1000 }
+      },
+      "unevaluatedProperties": false
+    },
+    "testSnapshot": {
+      "type": "object",
+      "required": [
+        "test_snapshot_id",
+        "tested_at",
+        "region",
+        "account_tier",
+        "sample_count",
+        "pass_count",
+        "request_hashes",
+        "result_hashes",
+        "rubric_version"
+      ],
+      "properties": {
+        "test_snapshot_id": { "$ref": "#/$defs/id" },
+        "tested_at": { "$ref": "#/$defs/dateTime" },
+        "region": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "account_tier": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "sample_count": { "type": "integer", "minimum": 1 },
+        "pass_count": { "type": "integer", "minimum": 0 },
+        "request_hashes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/hash" },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "result_hashes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/hash" },
+          "uniqueItems": true
+        },
+        "rubric_version": { "$ref": "#/$defs/semver" },
+        "observed_limits": { "$ref": "#/$defs/jsonValue" },
+        "failure_rate": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "unevaluatedProperties": false
+    },
+    "modelProfile": {
+      "type": "object",
+      "required": [
+        "model_profile_id",
+        "provider",
+        "model_name",
+        "model_build",
+        "model_kind",
+        "status",
+        "product_entries",
+        "regions",
+        "verified_at",
+        "freshness",
+        "evidence",
+        "capabilities",
+        "production_policy",
+        "pricing",
+        "test_snapshots",
+        "fallback_model_profile_ids"
+      ],
+      "properties": {
+        "model_profile_id": { "$ref": "#/$defs/id" },
+        "provider": { "type": "string", "minLength": 1, "maxLength": 150 },
+        "model_name": { "type": "string", "minLength": 1, "maxLength": 150 },
+        "model_build": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "model_kind": {
+          "type": "string",
+          "enum": ["video_generation", "audio_generation", "semantic_review", "image_generation", "other"]
+        },
+        "status": { "type": "string", "enum": ["verified", "experimental", "stale", "deprecated", "unavailable"] },
+        "product_entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["entry_id", "locator", "access_type"],
+            "properties": {
+              "entry_id": { "$ref": "#/$defs/id" },
+              "locator": { "type": "string", "minLength": 1, "maxLength": 1000 },
+              "access_type": { "type": "string", "enum": ["web", "api", "app", "local", "other"] },
+              "account_tiers": {
+                "type": "array",
+                "items": { "type": "string", "minLength": 1, "maxLength": 100 },
+                "uniqueItems": true
+              }
+            },
+            "unevaluatedProperties": false
+          },
+          "minItems": 1
+        },
+        "regions": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "maxLength": 100 },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "verified_at": { "$ref": "#/$defs/dateTime" },
+        "freshness": { "type": "string", "enum": ["current", "stale", "unknown"] },
+        "evidence": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/evidence" },
+          "minItems": 1
+        },
+        "capabilities": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": { "$ref": "#/$defs/capability" }
+        },
+        "known_limitations": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "maxLength": 1000 }
+        },
+        "production_policy": {
+          "type": "object",
+          "required": [
+            "preferred_atomic_duration_seconds",
+            "preferred_subject_count",
+            "default_attempt_count",
+            "risk_escalation_attempts",
+            "stale_capability_behavior"
+          ],
+          "properties": {
+            "preferred_atomic_duration_seconds": {
+              "type": "object",
+              "required": ["minimum", "maximum"],
+              "properties": {
+                "minimum": { "type": "number", "minimum": 0 },
+                "maximum": { "type": "number", "exclusiveMinimum": 0 }
+              },
+              "unevaluatedProperties": false
+            },
+            "preferred_subject_count": { "type": "integer", "minimum": 1 },
+            "default_attempt_count": { "type": "integer", "minimum": 1 },
+            "risk_escalation_attempts": { "type": "integer", "minimum": 1 },
+            "stale_capability_behavior": { "const": "treat_as_unknown" },
+            "fallback_strategy_ids": { "$ref": "#/$defs/idList" }
+          },
+          "unevaluatedProperties": false
+        },
+        "pricing": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/money" }
+        },
+        "test_snapshots": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/testSnapshot" }
+        },
+        "fallback_model_profile_ids": { "$ref": "#/$defs/idList" },
+        "field_provenance": { "$ref": "#/$defs/fieldProvenance" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "status": { "enum": ["stale", "deprecated", "unavailable"] } },
+            "required": ["status"]
+          },
+          "then": {
+            "properties": {
+              "fallback_model_profile_ids": { "minItems": 1 }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

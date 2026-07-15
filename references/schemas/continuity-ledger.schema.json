@@ -1,0 +1,565 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/continuity-ledger.schema.json",
+  "title": "Continuity Ledger",
+  "description": "记录每个 Shot 的首尾连续性状态和镜间转换，覆盖位置、方向、视线、动作相位、道具、服装、伤势、环境、声音与授权越轴。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "continuity_ledger_id",
+    "job_id",
+    "entries",
+    "transitions",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "#/$defs/semver"
+    },
+    "created_at": {
+      "$ref": "#/$defs/dateTime"
+    },
+    "created_by_stage": {
+      "$ref": "#/$defs/stageId"
+    },
+    "source_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "continuity_ledger_id": {
+      "$ref": "#/$defs/id"
+    },
+    "job_id": {
+      "$ref": "#/$defs/id"
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/continuityEntry"
+      },
+      "minItems": 1
+    },
+    "transitions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/transition"
+      }
+    },
+    "field_provenance": {
+      "$ref": "#/$defs/fieldProvenance"
+    }
+  },
+  "$defs": {
+    "id": {
+      "$ref": "provenance.schema.json#/$defs/artifactId"
+    },
+    "semver": {
+      "$ref": "provenance.schema.json#/$defs/semver"
+    },
+    "dateTime": {
+      "$ref": "provenance.schema.json#/$defs/dateTime"
+    },
+    "stageId": {
+      "$ref": "provenance.schema.json#/$defs/stageId"
+    },
+    "hash": {
+      "$ref": "provenance.schema.json#/$defs/hash"
+    },
+    "fieldProvenance": {
+      "$ref": "provenance.schema.json#/$defs/fieldProvenance"
+    },
+    "idList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "uniqueItems": true
+    },
+    "nonEmptyIdList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "screenDirection": {
+      "type": "string",
+      "enum": [
+        "screen_left",
+        "screen_right",
+        "toward_camera",
+        "away_from_camera",
+        "stationary",
+        "variable",
+        "not_applicable"
+      ]
+    },
+    "characterState": {
+      "type": "object",
+      "required": [
+        "character_id",
+        "position_mark_id",
+        "screen_direction",
+        "facing_direction",
+        "eyeline_target_id",
+        "pose",
+        "action_phase",
+        "performance_intensity",
+        "wardrobe_state_id",
+        "injury_state_id",
+        "dirt_state_id"
+      ],
+      "properties": {
+        "character_id": {
+          "$ref": "#/$defs/id"
+        },
+        "position_mark_id": {
+          "$ref": "#/$defs/id"
+        },
+        "screen_direction": {
+          "$ref": "#/$defs/screenDirection"
+        },
+        "facing_direction": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "eyeline_target_id": {
+          "$ref": "#/$defs/id"
+        },
+        "pose": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 800
+        },
+        "action_phase": {
+          "type": "object",
+          "required": [
+            "action_id",
+            "phase"
+          ],
+          "properties": {
+            "action_id": {
+              "$ref": "#/$defs/id"
+            },
+            "phase": {
+              "type": "string",
+              "enum": [
+                "not_started",
+                "anticipation",
+                "in_progress",
+                "contact",
+                "result",
+                "recovery",
+                "completed"
+              ]
+            }
+          },
+          "unevaluatedProperties": false
+        },
+        "performance_intensity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "dialogue_state": {
+          "type": "string",
+          "enum": [
+            "not_speaking",
+            "speaking",
+            "interrupted",
+            "listening",
+            "reacting",
+            "offscreen"
+          ]
+        },
+        "wardrobe_state_id": {
+          "$ref": "#/$defs/id"
+        },
+        "injury_state_id": {
+          "$ref": "#/$defs/id"
+        },
+        "dirt_state_id": {
+          "$ref": "#/$defs/id"
+        },
+        "occlusion_state": {
+          "type": "string",
+          "maxLength": 500
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "propState": {
+      "type": "object",
+      "required": [
+        "prop_id",
+        "owner_character_id",
+        "hand",
+        "position_mark_id",
+        "state"
+      ],
+      "properties": {
+        "prop_id": {
+          "$ref": "#/$defs/id"
+        },
+        "owner_character_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "hand": {
+          "type": "string",
+          "enum": [
+            "left",
+            "right",
+            "both",
+            "not_held"
+          ]
+        },
+        "position_mark_id": {
+          "$ref": "#/$defs/id"
+        },
+        "state": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 800
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "environmentState": {
+      "type": "object",
+      "required": [
+        "doors_windows_lights",
+        "time_of_day",
+        "weather",
+        "lighting_direction",
+        "environment_audio_state_id"
+      ],
+      "properties": {
+        "doors_windows_lights": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "object_id",
+              "state"
+            ],
+            "properties": {
+              "object_id": {
+                "$ref": "#/$defs/id"
+              },
+              "state": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              }
+            },
+            "unevaluatedProperties": false
+          }
+        },
+        "time_of_day": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "weather": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "lighting_direction": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "environment_audio_state_id": {
+          "$ref": "#/$defs/id"
+        },
+        "variable_object_states": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "object_id",
+              "state"
+            ],
+            "properties": {
+              "object_id": {
+                "$ref": "#/$defs/id"
+              },
+              "state": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              }
+            },
+            "unevaluatedProperties": false
+          }
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "stateSnapshot": {
+      "type": "object",
+      "required": [
+        "character_states",
+        "prop_states",
+        "environment_state",
+        "axis_side",
+        "state_hash"
+      ],
+      "properties": {
+        "character_states": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/characterState"
+          }
+        },
+        "prop_states": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/propState"
+          }
+        },
+        "environment_state": {
+          "$ref": "#/$defs/environmentState"
+        },
+        "axis_side": {
+          "type": "string",
+          "enum": [
+            "side_a",
+            "side_b",
+            "on_axis",
+            "moving_axis",
+            "not_applicable"
+          ]
+        },
+        "axis_id": {
+          "$ref": "#/$defs/id"
+        },
+        "state_hash": {
+          "$ref": "#/$defs/hash"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "continuityEntry": {
+      "type": "object",
+      "required": [
+        "continuity_entry_id",
+        "shot_id",
+        "scene_id",
+        "start_state",
+        "end_state",
+        "field_provenance"
+      ],
+      "properties": {
+        "continuity_entry_id": {
+          "$ref": "#/$defs/id"
+        },
+        "shot_id": {
+          "$ref": "#/$defs/id"
+        },
+        "scene_id": {
+          "$ref": "#/$defs/id"
+        },
+        "blocking_plan_id": {
+          "$ref": "#/$defs/id"
+        },
+        "camera_setup_id": {
+          "$ref": "#/$defs/id"
+        },
+        "start_state": {
+          "$ref": "#/$defs/stateSnapshot"
+        },
+        "end_state": {
+          "$ref": "#/$defs/stateSnapshot"
+        },
+        "audio_event_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "field_provenance": {
+          "$ref": "#/$defs/fieldProvenance"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "checkResult": {
+      "type": "object",
+      "required": [
+        "check_type",
+        "status"
+      ],
+      "properties": {
+        "check_type": {
+          "type": "string",
+          "enum": [
+            "position",
+            "screen_direction",
+            "eyeline",
+            "axis",
+            "action_phase",
+            "pose",
+            "performance_intensity",
+            "dialogue_state",
+            "prop_owner_hand",
+            "wardrobe",
+            "injury_dirt",
+            "door_window_light",
+            "time_weather",
+            "lighting",
+            "environment_audio"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "matched",
+            "authorized_change",
+            "reestablished",
+            "mismatch",
+            "not_applicable"
+          ]
+        },
+        "affected_entity_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "issue_id": {
+          "$ref": "#/$defs/id"
+        },
+        "note": {
+          "type": "string",
+          "maxLength": 1000
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "transition": {
+      "type": "object",
+      "required": [
+        "continuity_transition_id",
+        "from_shot_id",
+        "to_shot_id",
+        "from_end_state_hash",
+        "to_start_state_hash",
+        "checks",
+        "overall_status"
+      ],
+      "properties": {
+        "continuity_transition_id": {
+          "$ref": "#/$defs/id"
+        },
+        "from_shot_id": {
+          "$ref": "#/$defs/id"
+        },
+        "to_shot_id": {
+          "$ref": "#/$defs/id"
+        },
+        "from_end_state_hash": {
+          "$ref": "#/$defs/hash"
+        },
+        "to_start_state_hash": {
+          "$ref": "#/$defs/hash"
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/checkResult"
+          },
+          "minItems": 1
+        },
+        "axis_crossing_plan_id": {
+          "$ref": "#/$defs/id"
+        },
+        "reestablishing_shot_id": {
+          "$ref": "#/$defs/id"
+        },
+        "authorization_id": {
+          "$ref": "#/$defs/id"
+        },
+        "overall_status": {
+          "type": "string",
+          "enum": [
+            "matched",
+            "authorized_change",
+            "reestablished",
+            "blocked"
+          ]
+        },
+        "blocking_issue_ids": {
+          "$ref": "#/$defs/idList"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "overall_status": {
+                "const": "authorized_change"
+              }
+            },
+            "required": [
+              "overall_status"
+            ]
+          },
+          "then": {
+            "required": [
+              "authorization_id"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "overall_status": {
+                "const": "reestablished"
+              }
+            },
+            "required": [
+              "overall_status"
+            ]
+          },
+          "then": {
+            "required": [
+              "axis_crossing_plan_id",
+              "reestablishing_shot_id"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "overall_status": {
+                "const": "blocked"
+              }
+            },
+            "required": [
+              "overall_status"
+            ]
+          },
+          "then": {
+            "required": [
+              "blocking_issue_ids"
+            ],
+            "properties": {
+              "blocking_issue_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

@@ -1,0 +1,144 @@
+# 权利、同意、隐私与合规清单模板
+# pending、unknown、rejected、expired 或 blocked 均不得进入最终发布。
+
+schema_version: 1.0.0
+created_at: "2026-06-25T09:30:00+08:00"
+created_by_stage: rights-review
+source_hash: "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+rights_manifest_id: RIGHTS-MANIFEST-DEMO-001
+job_id: JOB-DEMO-001
+manifest_version: 1.0.0
+target_regions:
+  - CN
+target_platform_profile_ids:
+  - PLATFORM-VERTICAL-DEMO-001
+
+rights_records:
+  - rights_record_id: RIGHTS-RECORD-SCRIPT-DEMO-001
+    rights_subject_id: RIGHTS-SUBJECT-SCRIPT-DEMO-001
+    subject_type: script
+    subject_name: 示例短剧原始剧本
+    related_entity_ids:
+      - SOURCE-SCRIPT-DEMO-001
+    source: "example://controlled-source/SOURCE-SCRIPT-DEMO-001"
+    owner_or_controller: 示例权利人
+    license_or_basis: 待签署的短剧改编与制作许可
+    permissions:
+      commercial_use: unknown
+      derivative_use: conditional
+      ai_training_use: forbidden
+      ai_reference_use: unknown
+      ai_generated_derivative_use: unknown
+      distribution: conditional
+      sublicensing: forbidden
+      conditions:
+        - 正式签署后方可进入生成与发布。
+    territories:
+      - CN
+    attribution:
+      required: false
+      credit_texts: []
+      placement_rules: []
+    consent:
+      required: false
+      status: not_required
+      guardian_required: false
+      guardian_consent_status: not_required
+      withdrawal_supported: true
+      withdrawal_deadline_days: 30
+    evidence:
+      - evidence_id: EVIDENCE-SCRIPT-LICENSE-DEMO-001
+        evidence_type: license
+        locator: "example://controlled-evidence/AGREEMENT-DEMO-001"
+        evidence_hash: "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+        issuer_or_signatory: 示例权利人
+        issued_at: "2026-06-25T09:00:00+08:00"
+        verification_status: pending
+    verification_status: pending
+    privacy_flags:
+      - none
+    platform_terms_version: PLATFORM-TERMS-DEMO-001
+    regional_rule_version: AIGC-CN-PROFILE-2026-001
+    field_provenance:
+      /license_or_basis:
+        - provenance_id: PROV-RIGHTS-DEMO-001
+          source_refs:
+            - source_document_id: SOURCE-SCRIPT-DEMO-001
+              source_revision: r1
+              stable_span:
+                span_id: SPAN-RIGHTS-DEMO-001
+          transformation_type: verbatim
+          derived_by_stage: rights-review
+          confidence: 1
+
+inheritance_links: []
+
+effective_rights:
+  - effective_rights_id: EFFECTIVE-RIGHTS-DEMO-001
+    entity_type: generation_task
+    entity_id: GT-DEMO-001
+    source_rights_record_ids:
+      - RIGHTS-RECORD-SCRIPT-DEMO-001
+    territories:
+      - CN
+    earliest_expiry: null
+    permissions:
+      commercial_use: unknown
+      derivative_use: conditional
+      ai_reference_use: unknown
+      ai_generated_derivative_use: unknown
+      distribution: conditional
+    required_attributions: []
+    withdrawal_deadline_days: 30
+    status: pending
+    computed_at: "2026-06-25T09:30:00+08:00"
+    computation_hash: "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+
+privacy_governance:
+  purpose_limitation:
+    - 仅用于本项目制作、审核与授权范围内发布。
+  lawful_basis:
+    - contract-and-consent-review-pending
+  storage_regions:
+    - CN
+  retention_days: 365
+  access_control:
+    policy_id: ACCESS-POLICY-DEMO-001
+    allowed_role_ids:
+      - rights-reviewer
+      - project-producer
+    audit_logging: true
+  withdrawal_process: 收到有效撤回通知后冻结相关下游资产并重新计算有效权利。
+  deletion_sla_days: 30
+  security_controls:
+    - 最小权限访问
+    - 加密存储
+    - 导出审计
+  data_subject_request_process: 由权利审核负责人登记、核验、响应并保留处理记录。
+
+compliance_checks:
+  - check_id: COMPLIANCE-CN-AIGC-DEMO-001
+    region: CN
+    platform_profile_id: PLATFORM-VERTICAL-DEMO-001
+    rule_name: AIGC 标识与平台披露
+    rule_version: AIGC-CN-PROFILE-2026-001
+    evidence_ids:
+      - EVIDENCE-SCRIPT-LICENSE-DEMO-001
+    status: manual_review
+    severity: blocker
+    issue_id: ISSUE-RIGHTS-PENDING-DEMO-001
+
+overall_status: pending
+blocking_issue_ids:
+  - ISSUE-RIGHTS-PENDING-DEMO-001
+field_provenance:
+  /overall_status:
+    - provenance_id: PROV-RIGHTS-MANIFEST-DEMO-001
+      source_refs:
+        - source_document_id: SOURCE-SCRIPT-DEMO-001
+          source_revision: r1
+          stable_span:
+            span_id: SPAN-RIGHTS-DEMO-001
+      transformation_type: verbatim
+      derived_by_stage: rights-review
+      confidence: 1

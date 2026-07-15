@@ -1,0 +1,262 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/genre-profile.schema.json",
+  "title": "Genre Profile",
+  "description": "定义短剧题材的冲突、钩子、信息密度、对白密度、反应镜头、敏感内容、典型资产和连续性风险。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "genre_profile_id",
+    "profile_version",
+    "genre_name",
+    "applicable_formats",
+    "conflict_patterns",
+    "hook_patterns",
+    "forbidden_cliches",
+    "information_density",
+    "dialogue_density",
+    "reaction_shot_policy",
+    "sensitive_content_limits",
+    "typical_assets",
+    "continuity_risks",
+    "verified_at",
+    "evidence",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": { "$ref": "#/$defs/semver" },
+    "created_at": { "$ref": "#/$defs/dateTime" },
+    "created_by_stage": { "$ref": "#/$defs/stageId" },
+    "source_hash": { "$ref": "#/$defs/hash" },
+    "genre_profile_id": { "$ref": "#/$defs/id" },
+    "profile_version": { "$ref": "#/$defs/semver" },
+    "genre_name": { "type": "string", "minLength": 1, "maxLength": 100 },
+    "subgenre_tags": { "$ref": "#/$defs/stringList" },
+    "applicable_formats": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "vertical_serial_drama",
+          "short_narrative_video",
+          "narrative_ad",
+          "horizontal_short_film",
+          "other"
+        ]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "conflict_patterns": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/pattern" },
+      "minItems": 1
+    },
+    "hook_patterns": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/hookPattern" },
+      "minItems": 1
+    },
+    "forbidden_cliches": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["cliche_id", "description", "reason"],
+        "properties": {
+          "cliche_id": { "$ref": "#/$defs/id" },
+          "description": { "type": "string", "minLength": 1, "maxLength": 500 },
+          "reason": { "type": "string", "minLength": 1, "maxLength": 500 },
+          "allowed_with_authorization": { "type": "boolean" }
+        },
+        "unevaluatedProperties": false
+      }
+    },
+    "information_density": { "$ref": "#/$defs/density" },
+    "dialogue_density": { "$ref": "#/$defs/density" },
+    "reaction_shot_policy": {
+      "type": "object",
+      "required": ["required_for_major_reveal", "required_for_power_shift", "maximum_consecutive_dialogue_shots"],
+      "properties": {
+        "required_for_major_reveal": { "type": "boolean" },
+        "required_for_power_shift": { "type": "boolean" },
+        "maximum_consecutive_dialogue_shots": { "type": "integer", "minimum": 1 },
+        "preferred_reaction_types": { "$ref": "#/$defs/stringList" },
+        "exceptions": { "$ref": "#/$defs/stringList" }
+      },
+      "unevaluatedProperties": false
+    },
+    "sensitive_content_limits": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["category", "maximum_level", "handling"],
+        "properties": {
+          "category": { "type": "string", "minLength": 1, "maxLength": 100 },
+          "maximum_level": { "type": "string", "minLength": 1, "maxLength": 100 },
+          "handling": {
+            "type": "string",
+            "enum": ["allow", "warn", "require_authorization", "forbid", "defer_to_platform_profile"]
+          },
+          "notes": { "type": "string", "maxLength": 500 }
+        },
+        "unevaluatedProperties": false
+      }
+    },
+    "typical_assets": {
+      "type": "object",
+      "required": ["props", "locations", "sound_motifs"],
+      "properties": {
+        "props": { "$ref": "#/$defs/stringList" },
+        "locations": { "$ref": "#/$defs/stringList" },
+        "sound_motifs": { "$ref": "#/$defs/stringList" },
+        "visual_evidence_patterns": { "$ref": "#/$defs/stringList" }
+      },
+      "unevaluatedProperties": false
+    },
+    "continuity_risks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["risk_id", "category", "description", "mitigation"],
+        "properties": {
+          "risk_id": { "$ref": "#/$defs/id" },
+          "category": {
+            "type": "string",
+            "enum": [
+              "identity",
+              "wardrobe",
+              "injury",
+              "prop",
+              "spatial",
+              "timeline",
+              "world_rule",
+              "audio",
+              "other"
+            ]
+          },
+          "description": { "type": "string", "minLength": 1, "maxLength": 500 },
+          "mitigation": { "type": "string", "minLength": 1, "maxLength": 1000 },
+          "default_severity": { "$ref": "#/$defs/severity" }
+        },
+        "unevaluatedProperties": false
+      },
+      "minItems": 1
+    },
+    "rhythm_guidance": {
+      "type": "object",
+      "properties": {
+        "beat_duration_seconds": { "$ref": "#/$defs/numericRange" },
+        "reveal_spacing_seconds": { "$ref": "#/$defs/numericRange" },
+        "notes": { "$ref": "#/$defs/stringList" }
+      },
+      "unevaluatedProperties": false
+    },
+    "verified_at": { "$ref": "#/$defs/dateTime" },
+    "evidence": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/evidence" },
+      "minItems": 1
+    },
+    "field_provenance": { "$ref": "#/$defs/fieldProvenance" }
+  },
+  "$defs": {
+    "id": { "$ref": "provenance.schema.json#/$defs/artifactId" },
+    "semver": { "$ref": "provenance.schema.json#/$defs/semver" },
+    "dateTime": { "$ref": "provenance.schema.json#/$defs/dateTime" },
+    "stageId": { "$ref": "provenance.schema.json#/$defs/stageId" },
+    "hash": { "$ref": "provenance.schema.json#/$defs/hash" },
+    "fieldProvenance": { "$ref": "provenance.schema.json#/$defs/fieldProvenance" },
+    "severity": {
+      "type": "string",
+      "enum": ["blocker", "critical", "error", "warning", "info", "suggestion"]
+    },
+    "stringList": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1, "maxLength": 500 },
+      "uniqueItems": true
+    },
+    "numericRange": {
+      "type": "object",
+      "required": ["minimum", "maximum"],
+      "properties": {
+        "minimum": { "type": "number", "minimum": 0 },
+        "maximum": { "type": "number", "minimum": 0 }
+      },
+      "unevaluatedProperties": false
+    },
+    "density": {
+      "type": "object",
+      "required": ["unit", "minimum", "target", "maximum"],
+      "properties": {
+        "unit": {
+          "type": "string",
+          "enum": ["events_per_10_seconds", "characters_per_second", "lines_per_minute", "custom"]
+        },
+        "minimum": { "type": "number", "minimum": 0 },
+        "target": { "type": "number", "minimum": 0 },
+        "maximum": { "type": "number", "minimum": 0 },
+        "custom_unit": { "type": "string", "maxLength": 100 }
+      },
+      "unevaluatedProperties": false
+    },
+    "pattern": {
+      "type": "object",
+      "required": ["pattern_id", "name", "visible_mechanism", "authorized_story_change_required"],
+      "properties": {
+        "pattern_id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "visible_mechanism": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "authorized_story_change_required": { "type": "boolean" },
+        "best_for": { "$ref": "#/$defs/stringList" },
+        "avoid_when": { "$ref": "#/$defs/stringList" }
+      },
+      "unevaluatedProperties": false
+    },
+    "hookPattern": {
+      "allOf": [
+        { "$ref": "#/$defs/pattern" },
+        {
+          "type": "object",
+          "required": ["promise_type", "payoff_requirement"],
+          "properties": {
+            "promise_type": {
+              "type": "string",
+              "enum": [
+                "result_forward",
+                "visual_anomaly",
+                "identity_gap",
+                "deadline",
+                "public_conflict",
+                "danger",
+                "broken_rule",
+                "information_gap",
+                "other"
+              ]
+            },
+            "payoff_requirement": { "type": "string", "minLength": 1, "maxLength": 1000 }
+          }
+        }
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["evidence_id", "source_type", "title", "locator", "verified_at", "content_hash"],
+      "properties": {
+        "evidence_id": { "$ref": "#/$defs/id" },
+        "source_type": {
+          "type": "string",
+          "enum": ["production_sample", "research", "platform_guidance", "expert_review", "internal_eval", "other"]
+        },
+        "title": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "locator": { "type": "string", "minLength": 1, "maxLength": 2000 },
+        "verified_at": { "$ref": "#/$defs/dateTime" },
+        "content_hash": { "$ref": "#/$defs/hash" }
+      },
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

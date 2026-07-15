@@ -1,0 +1,292 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/cost-estimate.schema.json",
+  "title": "Cost Estimate",
+  "description": "记录真人、AI与混合制作的最低、预期和高失败率成本，包含价格证据、税费、汇率、重试分布、风险概率、预算比较和实际成本校准。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "cost_estimate_id",
+    "job_id",
+    "estimate_version",
+    "base_currency",
+    "pricing_verified_at",
+    "pricing_freshness",
+    "pricing_evidence",
+    "exchange_rates",
+    "assumptions",
+    "retry_model",
+    "components",
+    "scenarios",
+    "budget_comparison",
+    "confidence",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": { "$ref": "#/$defs/semver" },
+    "created_at": { "$ref": "#/$defs/dateTime" },
+    "created_by_stage": { "$ref": "#/$defs/stageId" },
+    "source_hash": { "$ref": "#/$defs/hash" },
+    "cost_estimate_id": { "$ref": "#/$defs/id" },
+    "job_id": { "$ref": "#/$defs/id" },
+    "estimate_version": { "$ref": "#/$defs/semver" },
+    "base_currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+    "pricing_verified_at": { "$ref": "#/$defs/dateTime" },
+    "pricing_freshness": { "type": "string", "enum": ["current", "stale", "unknown"] },
+    "pricing_evidence": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/pricingEvidence" },
+      "minItems": 1
+    },
+    "exchange_rates": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/exchangeRate" }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["assumption_id", "description", "source", "confidence"],
+        "properties": {
+          "assumption_id": { "$ref": "#/$defs/id" },
+          "description": { "type": "string", "minLength": 1, "maxLength": 1000 },
+          "source": { "type": "string", "minLength": 1, "maxLength": 500 },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+        },
+        "unevaluatedProperties": false
+      },
+      "minItems": 1
+    },
+    "retry_model": {
+      "type": "object",
+      "required": ["distribution_type", "retry_count_distribution", "failure_probability_by_risk"],
+      "properties": {
+        "distribution_type": { "type": "string", "enum": ["empirical", "binomial", "poisson", "negative_binomial", "scenario", "custom"] },
+        "retry_count_distribution": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["retry_count", "probability"],
+            "properties": {
+              "retry_count": { "type": "integer", "minimum": 0 },
+              "probability": { "type": "number", "minimum": 0, "maximum": 1 }
+            },
+            "unevaluatedProperties": false
+          },
+          "minItems": 1
+        },
+        "failure_probability_by_risk": {
+          "type": "object",
+          "required": ["low", "medium", "high"],
+          "properties": {
+            "low": { "type": "number", "minimum": 0, "maximum": 1 },
+            "medium": { "type": "number", "minimum": 0, "maximum": 1 },
+            "high": { "type": "number", "minimum": 0, "maximum": 1 }
+          },
+          "unevaluatedProperties": false
+        },
+        "sample_size": { "type": "integer", "minimum": 1 },
+        "calibration_eval_result_id": { "$ref": "#/$defs/id" }
+      },
+      "unevaluatedProperties": false
+    },
+    "components": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/component" },
+      "minItems": 1
+    },
+    "scenarios": {
+      "type": "object",
+      "required": ["minimum", "expected", "high_failure"],
+      "properties": {
+        "minimum": { "$ref": "#/$defs/scenario" },
+        "expected": { "$ref": "#/$defs/scenario" },
+        "high_failure": { "$ref": "#/$defs/scenario" }
+      },
+      "unevaluatedProperties": false
+    },
+    "budget_comparison": {
+      "type": "object",
+      "required": ["budget", "expected_variance", "high_failure_variance", "status", "over_budget_entities"],
+      "properties": {
+        "budget": { "$ref": "#/$defs/money" },
+        "expected_variance": { "$ref": "#/$defs/signedMoney" },
+        "high_failure_variance": { "$ref": "#/$defs/signedMoney" },
+        "status": { "type": "string", "enum": ["within_budget", "at_risk", "over_budget", "budget_unknown"] },
+        "over_budget_entities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["entity_id", "entity_type", "expected_cost", "fallback_strategy_ids"],
+            "properties": {
+              "entity_id": { "$ref": "#/$defs/id" },
+              "entity_type": { "type": "string", "minLength": 1, "maxLength": 100 },
+              "expected_cost": { "$ref": "#/$defs/money" },
+              "fallback_strategy_ids": { "$ref": "#/$defs/idList" }
+            },
+            "unevaluatedProperties": false
+          }
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "confidence": {
+      "type": "object",
+      "required": ["level", "interval_method", "lower", "upper", "sample_size"],
+      "properties": {
+        "level": { "type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1 },
+        "interval_method": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "lower": { "$ref": "#/$defs/money" },
+        "upper": { "$ref": "#/$defs/money" },
+        "sample_size": { "type": "integer", "minimum": 1 }
+      },
+      "unevaluatedProperties": false
+    },
+    "actuals": {
+      "type": "object",
+      "required": ["actual_cost", "measured_at", "median_absolute_percentage_error"],
+      "properties": {
+        "actual_cost": { "$ref": "#/$defs/money" },
+        "measured_at": { "$ref": "#/$defs/dateTime" },
+        "median_absolute_percentage_error": { "type": "number", "minimum": 0 },
+        "attempt_ids": { "$ref": "#/$defs/idList" },
+        "run_snapshot_id": { "$ref": "#/$defs/id" }
+      },
+      "unevaluatedProperties": false
+    },
+    "field_provenance": { "$ref": "#/$defs/fieldProvenance" }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "pricing_freshness": { "enum": ["stale", "unknown"] } },
+        "required": ["pricing_freshness"]
+      },
+      "then": {
+        "properties": {
+          "budget_comparison": {
+            "properties": { "status": { "enum": ["at_risk", "budget_unknown"] } }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "id": { "$ref": "provenance.schema.json#/$defs/artifactId" },
+    "semver": { "$ref": "provenance.schema.json#/$defs/semver" },
+    "dateTime": { "$ref": "provenance.schema.json#/$defs/dateTime" },
+    "stageId": { "$ref": "provenance.schema.json#/$defs/stageId" },
+    "hash": { "$ref": "provenance.schema.json#/$defs/hash" },
+    "fieldProvenance": { "$ref": "provenance.schema.json#/$defs/fieldProvenance" },
+    "idList": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/id" },
+      "uniqueItems": true
+    },
+    "money": {
+      "type": "object",
+      "required": ["amount", "currency", "tax_included"],
+      "properties": {
+        "amount": { "type": "number", "minimum": 0 },
+        "currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+        "tax_included": { "type": "boolean" }
+      },
+      "unevaluatedProperties": false
+    },
+    "signedMoney": {
+      "type": "object",
+      "required": ["amount", "currency"],
+      "properties": {
+        "amount": { "type": "number" },
+        "currency": { "type": "string", "pattern": "^[A-Z]{3}$" }
+      },
+      "unevaluatedProperties": false
+    },
+    "pricingEvidence": {
+      "type": "object",
+      "required": ["pricing_evidence_id", "source", "pricing_unit", "verified_at", "content_hash"],
+      "properties": {
+        "pricing_evidence_id": { "$ref": "#/$defs/id" },
+        "source": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "pricing_unit": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "verified_at": { "$ref": "#/$defs/dateTime" },
+        "content_hash": { "$ref": "#/$defs/hash" },
+        "region": { "type": "string", "maxLength": 100 }
+      },
+      "unevaluatedProperties": false
+    },
+    "exchangeRate": {
+      "type": "object",
+      "required": ["from_currency", "to_currency", "rate", "source", "verified_at"],
+      "properties": {
+        "from_currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+        "to_currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+        "rate": { "type": "number", "exclusiveMinimum": 0 },
+        "source": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "verified_at": { "$ref": "#/$defs/dateTime" }
+      },
+      "unevaluatedProperties": false
+    },
+    "component": {
+      "type": "object",
+      "required": [
+        "component_id",
+        "category",
+        "description",
+        "quantity",
+        "unit_cost",
+        "tax_rate",
+        "minimum_cost",
+        "expected_cost",
+        "high_failure_cost",
+        "source_evidence_ids"
+      ],
+      "properties": {
+        "component_id": { "$ref": "#/$defs/id" },
+        "category": {
+          "type": "string",
+          "enum": [
+            "generation",
+            "reference_assets",
+            "voice",
+            "music",
+            "sound",
+            "post_production",
+            "human_review",
+            "live_action",
+            "equipment",
+            "location",
+            "safety",
+            "compliance",
+            "storage",
+            "other"
+          ]
+        },
+        "description": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "related_entity_ids": { "$ref": "#/$defs/idList" },
+        "quantity": { "type": "number", "minimum": 0 },
+        "unit_cost": { "$ref": "#/$defs/money" },
+        "tax_rate": { "type": "number", "minimum": 0 },
+        "minimum_cost": { "$ref": "#/$defs/money" },
+        "expected_cost": { "$ref": "#/$defs/money" },
+        "high_failure_cost": { "$ref": "#/$defs/money" },
+        "source_evidence_ids": { "$ref": "#/$defs/idList" }
+      },
+      "unevaluatedProperties": false
+    },
+    "scenario": {
+      "type": "object",
+      "required": ["total", "assumption_ids", "calculation_hash"],
+      "properties": {
+        "total": { "$ref": "#/$defs/money" },
+        "assumption_ids": { "$ref": "#/$defs/idList" },
+        "calculation_hash": { "$ref": "#/$defs/hash" }
+      },
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

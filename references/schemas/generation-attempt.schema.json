@@ -1,0 +1,507 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/generation-attempt.schema.json",
+  "title": "Generation Attempt",
+  "description": "记录一次真实模型提交的完整请求快照、结果资产、失败分类、成本、验收评分和选片状态。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "attempt_id",
+    "job_id",
+    "generation_task_id",
+    "attempt_number",
+    "provider_entry",
+    "account_region",
+    "model_build",
+    "request_parameters",
+    "request_snapshot_hash",
+    "submitted_at",
+    "status",
+    "result_asset_ids",
+    "failure_codes",
+    "actual_cost",
+    "latency_seconds",
+    "artifact_hashes",
+    "acceptance_scores",
+    "selection_status",
+    "rejection_reasons",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "#/$defs/semver"
+    },
+    "created_at": {
+      "$ref": "#/$defs/dateTime"
+    },
+    "created_by_stage": {
+      "$ref": "#/$defs/stageId"
+    },
+    "source_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "attempt_id": {
+      "$ref": "#/$defs/id"
+    },
+    "job_id": {
+      "$ref": "#/$defs/id"
+    },
+    "generation_task_id": {
+      "$ref": "#/$defs/id"
+    },
+    "attempt_number": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "provider_entry": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500
+    },
+    "account_region": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "account_capability_snapshot_id": {
+      "$ref": "#/$defs/id"
+    },
+    "model_build": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "request_parameters": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/$defs/jsonValue"
+      }
+    },
+    "seed_if_available": {
+      "oneOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "request_snapshot_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "submitted_at": {
+      "$ref": "#/$defs/dateTime"
+    },
+    "completed_at": {
+      "$ref": "#/$defs/dateTime"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "running",
+        "succeeded",
+        "partial",
+        "failed",
+        "cancelled"
+      ]
+    },
+    "result_asset_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "selected_asset_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "failure_codes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/failure"
+      }
+    },
+    "actual_cost": {
+      "$ref": "#/$defs/money"
+    },
+    "latency_seconds": {
+      "type": "number",
+      "minimum": 0
+    },
+    "artifact_hashes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/hash"
+      },
+      "uniqueItems": true
+    },
+    "provider_response_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "acceptance_scores": {
+      "$ref": "#/$defs/acceptanceScores"
+    },
+    "blocking_defect_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "repairable_defect_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "selection_status": {
+      "type": "string",
+      "enum": [
+        "unreviewed",
+        "candidate",
+        "selected",
+        "alternate",
+        "rejected"
+      ]
+    },
+    "rejection_reasons": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/rejection"
+      }
+    },
+    "recommended_next_action": {
+      "type": "string",
+      "enum": [
+        "accept",
+        "retry_same_task",
+        "revise_prompt",
+        "add_reference",
+        "split_shot",
+        "post_dub",
+        "composite_repair",
+        "switch_model",
+        "switch_live_action",
+        "switch_hybrid",
+        "omit_nonessential_action"
+      ]
+    },
+    "field_provenance": {
+      "$ref": "#/$defs/fieldProvenance"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "succeeded",
+              "partial"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "completed_at"
+        ],
+        "properties": {
+          "result_asset_ids": {
+            "minItems": 1
+          },
+          "artifact_hashes": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "failed",
+              "cancelled"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "completed_at",
+          "recommended_next_action"
+        ],
+        "properties": {
+          "failure_codes": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "selection_status": {
+            "const": "selected"
+          }
+        },
+        "required": [
+          "selection_status"
+        ]
+      },
+      "then": {
+        "required": [
+          "selected_asset_ids"
+        ],
+        "properties": {
+          "selected_asset_ids": {
+            "minItems": 1
+          },
+          "blocking_defect_ids": {
+            "maxItems": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "selection_status": {
+            "const": "rejected"
+          }
+        },
+        "required": [
+          "selection_status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "rejection_reasons": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "id": {
+      "$ref": "provenance.schema.json#/$defs/artifactId"
+    },
+    "semver": {
+      "$ref": "provenance.schema.json#/$defs/semver"
+    },
+    "dateTime": {
+      "$ref": "provenance.schema.json#/$defs/dateTime"
+    },
+    "stageId": {
+      "$ref": "provenance.schema.json#/$defs/stageId"
+    },
+    "hash": {
+      "$ref": "provenance.schema.json#/$defs/hash"
+    },
+    "fieldProvenance": {
+      "$ref": "provenance.schema.json#/$defs/fieldProvenance"
+    },
+    "idList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "uniqueItems": true
+    },
+    "jsonValue": {
+      "oneOf": [
+        {
+          "type": [
+            "string",
+            "number",
+            "integer",
+            "boolean",
+            "null"
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/jsonValue"
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/jsonValue"
+          }
+        }
+      ]
+    },
+    "money": {
+      "type": "object",
+      "required": [
+        "amount",
+        "currency",
+        "pricing_unit",
+        "tax_included"
+      ],
+      "properties": {
+        "amount": {
+          "type": "number",
+          "minimum": 0
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        },
+        "pricing_unit": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "tax_included": {
+          "type": "boolean"
+        },
+        "exchange_rate_snapshot_id": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "failure": {
+      "type": "object",
+      "required": [
+        "code",
+        "category",
+        "description",
+        "blocking"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "provider_code": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "identity_drift",
+            "hand_or_prop",
+            "lip_sync",
+            "camera_motion",
+            "spatial_relation",
+            "physics",
+            "composition_drift",
+            "multi_shot_boundary",
+            "audio",
+            "moderation",
+            "provider",
+            "timeout",
+            "cost",
+            "unknown"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "blocking": {
+          "type": "boolean"
+        },
+        "affected_asset_ids": {
+          "$ref": "#/$defs/idList"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "acceptanceScores": {
+      "type": "object",
+      "required": [
+        "identity",
+        "action",
+        "composition",
+        "physics",
+        "lip_sync",
+        "audio",
+        "continuity",
+        "prompt_alignment",
+        "overall",
+        "rubric_version"
+      ],
+      "properties": {
+        "identity": {
+          "$ref": "#/$defs/score"
+        },
+        "action": {
+          "$ref": "#/$defs/score"
+        },
+        "composition": {
+          "$ref": "#/$defs/score"
+        },
+        "physics": {
+          "$ref": "#/$defs/score"
+        },
+        "lip_sync": {
+          "$ref": "#/$defs/score"
+        },
+        "audio": {
+          "$ref": "#/$defs/score"
+        },
+        "continuity": {
+          "$ref": "#/$defs/score"
+        },
+        "prompt_alignment": {
+          "$ref": "#/$defs/score"
+        },
+        "overall": {
+          "$ref": "#/$defs/score"
+        },
+        "rubric_version": {
+          "$ref": "#/$defs/semver"
+        },
+        "reviewer_ids": {
+          "$ref": "#/$defs/idList"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "rejection": {
+      "type": "object",
+      "required": [
+        "reason_code",
+        "description"
+      ],
+      "properties": {
+        "reason_code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "superseded_by_attempt_id": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

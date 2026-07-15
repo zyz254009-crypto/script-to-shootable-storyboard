@@ -1,0 +1,333 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/quality-report.schema.json",
+  "title": "Quality Report",
+  "description": "汇总确定性校验器、语义审核器和评分器的版本化结果，按严重级别、问题类别、证据、责任阶段、修复范围和发布影响输出统一报告。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "quality_report_id",
+    "job_id",
+    "report_version",
+    "run_snapshot_id",
+    "artifact_scope",
+    "tool_runs",
+    "issues",
+    "summary",
+    "repair_routing",
+    "release_assessment",
+    "report_hash",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": { "$ref": "#/$defs/semver" },
+    "created_at": { "$ref": "#/$defs/dateTime" },
+    "created_by_stage": { "$ref": "#/$defs/stageId" },
+    "source_hash": { "$ref": "#/$defs/hash" },
+    "quality_report_id": { "$ref": "#/$defs/id" },
+    "job_id": { "$ref": "#/$defs/id" },
+    "report_version": { "$ref": "#/$defs/semver" },
+    "run_snapshot_id": { "$ref": "#/$defs/id" },
+    "artifact_scope": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["artifact_id", "artifact_type", "artifact_hash", "schema_version"],
+        "properties": {
+          "artifact_id": { "$ref": "#/$defs/id" },
+          "artifact_type": { "type": "string", "minLength": 1, "maxLength": 120 },
+          "artifact_hash": { "$ref": "#/$defs/hash" },
+          "schema_version": { "$ref": "#/$defs/semver" }
+        },
+        "unevaluatedProperties": false
+      },
+      "minItems": 1
+    },
+    "tool_runs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/toolRun" },
+      "minItems": 1
+    },
+    "semantic_review_run_ids": { "$ref": "#/$defs/idList" },
+    "issues": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/issue" }
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "issue_count",
+        "counts_by_severity",
+        "counts_by_status",
+        "blocking_issue_ids",
+        "manual_confirmation_issue_ids",
+        "risk_warning_issue_ids",
+        "creative_suggestion_issue_ids"
+      ],
+      "properties": {
+        "issue_count": { "type": "integer", "minimum": 0 },
+        "counts_by_severity": { "$ref": "#/$defs/severityCounts" },
+        "counts_by_status": {
+          "type": "object",
+          "required": ["open", "accepted", "fixed", "waived", "invalid"],
+          "properties": {
+            "open": { "type": "integer", "minimum": 0 },
+            "accepted": { "type": "integer", "minimum": 0 },
+            "fixed": { "type": "integer", "minimum": 0 },
+            "waived": { "type": "integer", "minimum": 0 },
+            "invalid": { "type": "integer", "minimum": 0 }
+          },
+          "unevaluatedProperties": false
+        },
+        "blocking_issue_ids": { "$ref": "#/$defs/idList" },
+        "manual_confirmation_issue_ids": { "$ref": "#/$defs/idList" },
+        "risk_warning_issue_ids": { "$ref": "#/$defs/idList" },
+        "creative_suggestion_issue_ids": { "$ref": "#/$defs/idList" }
+      },
+      "unevaluatedProperties": false
+    },
+    "repair_routing": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["issue_id", "owner_stage", "repair_scope", "repairable", "automatic_patch_allowed"],
+        "properties": {
+          "issue_id": { "$ref": "#/$defs/id" },
+          "owner_stage": { "$ref": "#/$defs/stageId" },
+          "repair_scope": {
+            "type": "string",
+            "enum": ["format", "structure", "visualization", "blocking", "shot", "timing", "continuity", "prompt", "rights", "safety", "story", "manual_only"]
+          },
+          "repairable": { "type": "boolean" },
+          "automatic_patch_allowed": { "type": "boolean" },
+          "repair_patch_id": { "$ref": "#/$defs/id" }
+        },
+        "unevaluatedProperties": false
+      }
+    },
+    "release_assessment": {
+      "type": "object",
+      "required": [
+        "eligible",
+        "blocking_reasons",
+        "required_manual_approvals",
+        "metrics_config_id",
+        "gate_result_ids"
+      ],
+      "properties": {
+        "eligible": { "type": "boolean" },
+        "blocking_reasons": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "maxLength": 1000 }
+        },
+        "required_manual_approvals": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "maxLength": 300 }
+        },
+        "metrics_config_id": { "$ref": "#/$defs/id" },
+        "gate_result_ids": { "$ref": "#/$defs/idList" }
+      },
+      "unevaluatedProperties": false
+    },
+    "report_hash": { "$ref": "#/$defs/hash" },
+    "field_provenance": { "$ref": "#/$defs/fieldProvenance" }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "release_assessment": {
+            "properties": { "eligible": { "const": true } },
+            "required": ["eligible"]
+          }
+        },
+        "required": ["release_assessment"]
+      },
+      "then": {
+        "properties": {
+          "summary": {
+            "properties": {
+              "blocking_issue_ids": { "maxItems": 0 },
+              "counts_by_severity": {
+                "properties": {
+                  "blocker": { "const": 0 },
+                  "critical": { "const": 0 },
+                  "error": { "const": 0 }
+                }
+              }
+            }
+          },
+          "release_assessment": {
+            "properties": {
+              "blocking_reasons": { "maxItems": 0 }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "id": { "$ref": "provenance.schema.json#/$defs/artifactId" },
+    "semver": { "$ref": "provenance.schema.json#/$defs/semver" },
+    "dateTime": { "$ref": "provenance.schema.json#/$defs/dateTime" },
+    "stageId": { "$ref": "provenance.schema.json#/$defs/stageId" },
+    "hash": { "$ref": "provenance.schema.json#/$defs/hash" },
+    "jsonPointer": { "$ref": "provenance.schema.json#/$defs/jsonPointer" },
+    "fieldProvenance": { "$ref": "provenance.schema.json#/$defs/fieldProvenance" },
+    "idList": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/id" },
+      "uniqueItems": true
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["blocker", "critical", "error", "warning", "info", "suggestion"]
+    },
+    "severityCounts": {
+      "type": "object",
+      "required": ["blocker", "critical", "error", "warning", "info", "suggestion"],
+      "properties": {
+        "blocker": { "type": "integer", "minimum": 0 },
+        "critical": { "type": "integer", "minimum": 0 },
+        "error": { "type": "integer", "minimum": 0 },
+        "warning": { "type": "integer", "minimum": 0 },
+        "info": { "type": "integer", "minimum": 0 },
+        "suggestion": { "type": "integer", "minimum": 0 }
+      },
+      "unevaluatedProperties": false
+    },
+    "toolRun": {
+      "type": "object",
+      "required": [
+        "tool_run_id",
+        "tool_name",
+        "tool_kind",
+        "tool_version",
+        "rule_registry_version",
+        "started_at",
+        "completed_at",
+        "status",
+        "exit_code",
+        "input_hashes",
+        "output_hash"
+      ],
+      "properties": {
+        "tool_run_id": { "$ref": "#/$defs/id" },
+        "tool_name": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "tool_kind": { "type": "string", "enum": ["validator", "reviewer", "scorer"] },
+        "tool_version": { "$ref": "#/$defs/semver" },
+        "rule_registry_version": { "$ref": "#/$defs/semver" },
+        "started_at": { "$ref": "#/$defs/dateTime" },
+        "completed_at": { "$ref": "#/$defs/dateTime" },
+        "status": { "type": "string", "enum": ["pass", "fail", "warning", "error"] },
+        "exit_code": { "type": "integer", "minimum": 0, "maximum": 255 },
+        "input_hashes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/hash" },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "output_hash": { "$ref": "#/$defs/hash" }
+      },
+      "unevaluatedProperties": false
+    },
+    "issue": {
+      "type": "object",
+      "required": [
+        "issue_id",
+        "severity",
+        "report_class",
+        "category",
+        "validator",
+        "rule_id",
+        "artifact_id",
+        "location",
+        "message",
+        "evidence",
+        "repair_owner",
+        "repair_scope",
+        "repairable",
+        "automatic_fix_allowed",
+        "status",
+        "release_blocking"
+      ],
+      "properties": {
+        "issue_id": { "$ref": "#/$defs/id" },
+        "severity": { "$ref": "#/$defs/severity" },
+        "report_class": {
+          "type": "string",
+          "enum": ["blocking_error", "manual_confirmation", "risk_warning", "creative_suggestion", "difference"]
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "schema",
+            "source_trace",
+            "plot_fidelity",
+            "atomic_shot",
+            "abstract_language",
+            "timing",
+            "continuity",
+            "blocking",
+            "camera_setup",
+            "coverage",
+            "timeline",
+            "hook",
+            "audio",
+            "prompt_alignment",
+            "model_capability",
+            "generation_risk",
+            "rights",
+            "privacy",
+            "safety",
+            "compliance",
+            "cost",
+            "format",
+            "other"
+          ]
+        },
+        "validator": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "validator_run_id": { "$ref": "#/$defs/id" },
+        "rule_id": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "artifact_id": { "$ref": "#/$defs/id" },
+        "location": { "$ref": "#/$defs/jsonPointer" },
+        "message": { "type": "string", "minLength": 1, "maxLength": 1500 },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "maxLength": 1500 },
+          "minItems": 1
+        },
+        "repair_owner": { "$ref": "#/$defs/stageId" },
+        "repair_scope": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "repairable": { "type": "boolean" },
+        "automatic_fix_allowed": { "type": "boolean" },
+        "suggested_fix": { "type": "string", "maxLength": 1500 },
+        "status": { "type": "string", "enum": ["open", "accepted", "fixed", "waived", "invalid"] },
+        "release_blocking": { "type": "boolean" },
+        "waiver_id": { "$ref": "#/$defs/id" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "category": { "enum": ["rights", "privacy", "safety", "compliance", "plot_fidelity"] },
+              "severity": { "enum": ["blocker", "critical"] }
+            },
+            "required": ["category", "severity"]
+          },
+          "then": {
+            "properties": {
+              "automatic_fix_allowed": { "const": false },
+              "release_blocking": { "const": true }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

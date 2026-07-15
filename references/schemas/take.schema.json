@@ -1,0 +1,377 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/take.schema.json",
+  "title": "Live Action Take",
+  "description": "记录真人拍摄对一个 Shot 的一次执行尝试，以及素材、可用区间、连续性和选用状态。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "take_id",
+    "job_id",
+    "shot_id",
+    "camera_setup_id",
+    "attempt_number",
+    "status",
+    "recorded_asset_ids",
+    "usable_ranges",
+    "continuity_notes",
+    "selection_status",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "#/$defs/semver"
+    },
+    "created_at": {
+      "$ref": "#/$defs/dateTime"
+    },
+    "created_by_stage": {
+      "$ref": "#/$defs/stageId"
+    },
+    "source_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "take_id": {
+      "$ref": "#/$defs/id"
+    },
+    "job_id": {
+      "$ref": "#/$defs/id"
+    },
+    "shot_id": {
+      "$ref": "#/$defs/id"
+    },
+    "camera_setup_id": {
+      "$ref": "#/$defs/id"
+    },
+    "attempt_number": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "planned",
+        "recording",
+        "captured",
+        "failed",
+        "aborted"
+      ]
+    },
+    "recorded_asset_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "performance_notes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000
+      }
+    },
+    "continuity_notes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/continuityNote"
+      }
+    },
+    "usable_ranges": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/usableRange"
+      }
+    },
+    "audio_event_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "wild_track_asset_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "slate": {
+      "type": "object",
+      "properties": {
+        "scene_label": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "shot_label": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "take_label": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "timecode_start": {
+          "$ref": "#/$defs/timecode"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "rejection_reasons": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/rejection"
+      }
+    },
+    "selection_status": {
+      "type": "string",
+      "enum": [
+        "unreviewed",
+        "candidate",
+        "selected",
+        "alternate",
+        "rejected"
+      ]
+    },
+    "selected_asset_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "field_provenance": {
+      "$ref": "#/$defs/fieldProvenance"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "captured"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "recorded_asset_ids": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "failed",
+              "aborted"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "rejection_reasons"
+        ],
+        "properties": {
+          "rejection_reasons": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "selection_status": {
+            "const": "selected"
+          }
+        },
+        "required": [
+          "selection_status"
+        ]
+      },
+      "then": {
+        "required": [
+          "selected_asset_ids"
+        ],
+        "properties": {
+          "selected_asset_ids": {
+            "minItems": 1
+          },
+          "usable_ranges": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "id": {
+      "$ref": "provenance.schema.json#/$defs/artifactId"
+    },
+    "semver": {
+      "$ref": "provenance.schema.json#/$defs/semver"
+    },
+    "dateTime": {
+      "$ref": "provenance.schema.json#/$defs/dateTime"
+    },
+    "stageId": {
+      "$ref": "provenance.schema.json#/$defs/stageId"
+    },
+    "hash": {
+      "$ref": "provenance.schema.json#/$defs/hash"
+    },
+    "fieldProvenance": {
+      "$ref": "provenance.schema.json#/$defs/fieldProvenance"
+    },
+    "idList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "uniqueItems": true
+    },
+    "timecode": {
+      "type": "string",
+      "pattern": "^(?:[0-9]{2,}):[0-5][0-9]:[0-5][0-9](?:[:;][0-9]{2})$"
+    },
+    "usableRange": {
+      "type": "object",
+      "required": [
+        "asset_id",
+        "source_in_seconds",
+        "source_out_seconds",
+        "head_handle_seconds",
+        "tail_handle_seconds",
+        "quality_status"
+      ],
+      "properties": {
+        "asset_id": {
+          "$ref": "#/$defs/id"
+        },
+        "source_in_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "source_out_seconds": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "head_handle_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "tail_handle_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "quality_status": {
+          "type": "string",
+          "enum": [
+            "clean",
+            "repairable",
+            "reference_only",
+            "unusable"
+          ]
+        },
+        "covered_event_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 1000
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "continuityNote": {
+      "type": "object",
+      "required": [
+        "continuity_entry_id",
+        "status",
+        "note"
+      ],
+      "properties": {
+        "continuity_entry_id": {
+          "$ref": "#/$defs/id"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "matched",
+            "intentional_change",
+            "mismatch",
+            "not_applicable"
+          ]
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "authorization_id": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "intentional_change"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "authorization_id"
+            ]
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "rejection": {
+      "type": "object",
+      "required": [
+        "code",
+        "category",
+        "description"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "performance",
+            "continuity",
+            "focus",
+            "framing",
+            "camera",
+            "sound",
+            "lighting",
+            "safety",
+            "technical",
+            "other"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "blocking": {
+          "type": "boolean"
+        }
+      },
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

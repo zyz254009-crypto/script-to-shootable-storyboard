@@ -1,0 +1,481 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/audio-production.schema.json",
+  "title": "Audio Production",
+  "description": "将 Audio Event 的录音或生成尝试、可用音频资产和时间线片段连接成可验证的声音生产闭环。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "audio_production_id",
+    "job_id",
+    "audio_event_ids",
+    "method",
+    "status",
+    "attempts",
+    "selected_media_asset_ids",
+    "timeline_clip_ids",
+    "event_closures",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "#/$defs/semver"
+    },
+    "created_at": {
+      "$ref": "#/$defs/dateTime"
+    },
+    "created_by_stage": {
+      "$ref": "#/$defs/stageId"
+    },
+    "source_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "audio_production_id": {
+      "$ref": "#/$defs/id"
+    },
+    "job_id": {
+      "$ref": "#/$defs/id"
+    },
+    "audio_event_ids": {
+      "$ref": "#/$defs/nonEmptyIdList"
+    },
+    "method": {
+      "type": "string",
+      "enum": [
+        "location_recording",
+        "studio_recording",
+        "generated",
+        "library",
+        "composite"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "planned",
+        "in_progress",
+        "selected",
+        "placed",
+        "approved",
+        "blocked"
+      ]
+    },
+    "attempts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/audioAttempt"
+      }
+    },
+    "selected_media_asset_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "timeline_clip_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "event_closures": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/eventClosure"
+      }
+    },
+    "mix_requirements": {
+      "type": "object",
+      "properties": {
+        "target_loudness_lufs": {
+          "type": "number"
+        },
+        "true_peak_dbtp": {
+          "type": "number"
+        },
+        "channel_layout": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "room_tone_asset_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "music_ducking_required": {
+          "type": "boolean"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "blocking_issue_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "field_provenance": {
+      "$ref": "#/$defs/fieldProvenance"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "selected",
+              "placed",
+              "approved"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "attempts": {
+            "minItems": 1
+          },
+          "selected_media_asset_ids": {
+            "minItems": 1
+          },
+          "event_closures": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "placed",
+              "approved"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "timeline_clip_ids": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "blocked"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "blocking_issue_ids"
+        ],
+        "properties": {
+          "blocking_issue_ids": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "id": {
+      "$ref": "provenance.schema.json#/$defs/artifactId"
+    },
+    "semver": {
+      "$ref": "provenance.schema.json#/$defs/semver"
+    },
+    "dateTime": {
+      "$ref": "provenance.schema.json#/$defs/dateTime"
+    },
+    "stageId": {
+      "$ref": "provenance.schema.json#/$defs/stageId"
+    },
+    "hash": {
+      "$ref": "provenance.schema.json#/$defs/hash"
+    },
+    "fieldProvenance": {
+      "$ref": "provenance.schema.json#/$defs/fieldProvenance"
+    },
+    "idList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "uniqueItems": true
+    },
+    "nonEmptyIdList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "jsonValue": {
+      "oneOf": [
+        {
+          "type": [
+            "string",
+            "number",
+            "integer",
+            "boolean",
+            "null"
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/jsonValue"
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/jsonValue"
+          }
+        }
+      ]
+    },
+    "score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "audioAttempt": {
+      "type": "object",
+      "required": [
+        "attempt_id",
+        "attempt_number",
+        "source_or_model",
+        "parameters",
+        "status",
+        "result_media_asset_ids",
+        "usable_ranges",
+        "acceptance_scores",
+        "selection_status"
+      ],
+      "properties": {
+        "attempt_id": {
+          "$ref": "#/$defs/id"
+        },
+        "attempt_number": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "source_or_model": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "model_profile_id": {
+          "$ref": "#/$defs/id"
+        },
+        "performer_or_recordist_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/jsonValue"
+          }
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "planned",
+            "recorded",
+            "generated",
+            "failed",
+            "cancelled"
+          ]
+        },
+        "result_media_asset_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "usable_ranges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/usableRange"
+          }
+        },
+        "acceptance_scores": {
+          "type": "object",
+          "required": [
+            "intelligibility",
+            "performance",
+            "noise",
+            "sync",
+            "continuity",
+            "overall"
+          ],
+          "properties": {
+            "intelligibility": {
+              "$ref": "#/$defs/score"
+            },
+            "performance": {
+              "$ref": "#/$defs/score"
+            },
+            "noise": {
+              "$ref": "#/$defs/score"
+            },
+            "sync": {
+              "$ref": "#/$defs/score"
+            },
+            "continuity": {
+              "$ref": "#/$defs/score"
+            },
+            "overall": {
+              "$ref": "#/$defs/score"
+            }
+          },
+          "unevaluatedProperties": false
+        },
+        "selection_status": {
+          "type": "string",
+          "enum": [
+            "unreviewed",
+            "candidate",
+            "selected",
+            "alternate",
+            "rejected"
+          ]
+        },
+        "rejection_reasons": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "recorded",
+                  "generated"
+                ]
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "result_media_asset_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "selection_status": {
+                "const": "selected"
+              }
+            },
+            "required": [
+              "selection_status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "usable_ranges": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "usableRange": {
+      "type": "object",
+      "required": [
+        "asset_id",
+        "source_in_seconds",
+        "source_out_seconds",
+        "audio_event_ids"
+      ],
+      "properties": {
+        "asset_id": {
+          "$ref": "#/$defs/id"
+        },
+        "source_in_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "source_out_seconds": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "audio_event_ids": {
+          "$ref": "#/$defs/nonEmptyIdList"
+        },
+        "repair_requirements": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "eventClosure": {
+      "type": "object",
+      "required": [
+        "audio_event_id",
+        "attempt_id",
+        "media_asset_id",
+        "usable_range",
+        "timeline_clip_id",
+        "closure_status"
+      ],
+      "properties": {
+        "audio_event_id": {
+          "$ref": "#/$defs/id"
+        },
+        "attempt_id": {
+          "$ref": "#/$defs/id"
+        },
+        "media_asset_id": {
+          "$ref": "#/$defs/id"
+        },
+        "usable_range": {
+          "$ref": "#/$defs/usableRange"
+        },
+        "timeline_clip_id": {
+          "$ref": "#/$defs/id"
+        },
+        "closure_status": {
+          "type": "string",
+          "enum": [
+            "complete",
+            "pending",
+            "blocked"
+          ]
+        },
+        "validation_issue_ids": {
+          "$ref": "#/$defs/idList"
+        }
+      },
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

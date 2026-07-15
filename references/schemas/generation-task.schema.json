@@ -1,0 +1,719 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/generation-task.schema.json",
+  "title": "Seedance Generation Task",
+  "description": "将一个或多个已批准 Shot 编译为版本锁定、参考素材受控、带时间线提示词和降级方案的生成任务。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "generation_task_id",
+    "job_id",
+    "shot_ids",
+    "task_mode",
+    "model_profile",
+    "duration_seconds",
+    "aspect_ratio",
+    "reference_assets",
+    "first_frame",
+    "last_frame_target",
+    "subject_lock",
+    "environment",
+    "timeline_prompt",
+    "negative_constraints",
+    "continuity_targets",
+    "risk_assessment",
+    "fallback_plan",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "#/$defs/semver"
+    },
+    "created_at": {
+      "$ref": "#/$defs/dateTime"
+    },
+    "created_by_stage": {
+      "$ref": "#/$defs/stageId"
+    },
+    "source_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "generation_task_id": {
+      "$ref": "#/$defs/id"
+    },
+    "job_id": {
+      "$ref": "#/$defs/id"
+    },
+    "shot_ids": {
+      "$ref": "#/$defs/nonEmptyIdList"
+    },
+    "task_mode": {
+      "type": "string",
+      "enum": [
+        "atomic_shot",
+        "shot_segment",
+        "multi_shot_exception"
+      ]
+    },
+    "model_profile": {
+      "$ref": "#/$defs/modelProfileBinding"
+    },
+    "duration_seconds": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "aspect_ratio": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]{0,3}:[1-9][0-9]{0,3}$"
+    },
+    "reference_assets": {
+      "$ref": "#/$defs/referenceAssets"
+    },
+    "first_frame": {
+      "$ref": "#/$defs/frameTarget"
+    },
+    "last_frame_target": {
+      "$ref": "#/$defs/frameTarget"
+    },
+    "subject_lock": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/subjectLock"
+      },
+      "minItems": 1
+    },
+    "environment": {
+      "type": "object",
+      "required": [
+        "location_id",
+        "time_of_day",
+        "physical_description",
+        "lighting",
+        "weather_or_atmosphere"
+      ],
+      "properties": {
+        "location_id": {
+          "$ref": "#/$defs/id"
+        },
+        "time_of_day": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "physical_description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "lighting": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1200
+        },
+        "weather_or_atmosphere": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "environment_reference_asset_ids": {
+          "$ref": "#/$defs/idList"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "timeline_prompt": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/promptSegment"
+      },
+      "minItems": 1
+    },
+    "audio_requirements": {
+      "type": "object",
+      "required": [
+        "mode",
+        "audio_event_ids",
+        "post_dub_fallback"
+      ],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "none",
+            "native_generation",
+            "reference_guided",
+            "post_only",
+            "hybrid"
+          ]
+        },
+        "audio_event_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "post_dub_fallback": {
+          "type": "boolean"
+        },
+        "lip_sync_character_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "language_profile_id": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "negative_constraints": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/negativeConstraint"
+      },
+      "minItems": 1
+    },
+    "continuity_targets": {
+      "type": "object",
+      "required": [
+        "continuity_entry_ids",
+        "required_start_state_hash",
+        "required_end_state_hash"
+      ],
+      "properties": {
+        "continuity_entry_ids": {
+          "$ref": "#/$defs/nonEmptyIdList"
+        },
+        "required_start_state_hash": {
+          "$ref": "#/$defs/hash"
+        },
+        "required_end_state_hash": {
+          "$ref": "#/$defs/hash"
+        },
+        "locked_character_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "locked_prop_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "locked_environment_state_ids": {
+          "$ref": "#/$defs/idList"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "risk_assessment": {
+      "$ref": "#/$defs/riskAssessment"
+    },
+    "fallback_plan": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/fallbackStep"
+      },
+      "minItems": 1
+    },
+    "authorization_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "field_provenance": {
+      "$ref": "#/$defs/fieldProvenance"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "task_mode": {
+            "enum": [
+              "atomic_shot",
+              "shot_segment"
+            ]
+          }
+        },
+        "required": [
+          "task_mode"
+        ]
+      },
+      "then": {
+        "properties": {
+          "shot_ids": {
+            "maxItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "task_mode": {
+            "const": "multi_shot_exception"
+          }
+        },
+        "required": [
+          "task_mode"
+        ]
+      },
+      "then": {
+        "required": [
+          "authorization_ids"
+        ],
+        "properties": {
+          "shot_ids": {
+            "minItems": 2
+          },
+          "authorization_ids": {
+            "minItems": 1
+          },
+          "risk_assessment": {
+            "properties": {
+              "multi_shot_boundary_risk": {
+                "minimum": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "id": {
+      "$ref": "provenance.schema.json#/$defs/artifactId"
+    },
+    "semver": {
+      "$ref": "provenance.schema.json#/$defs/semver"
+    },
+    "dateTime": {
+      "$ref": "provenance.schema.json#/$defs/dateTime"
+    },
+    "stageId": {
+      "$ref": "provenance.schema.json#/$defs/stageId"
+    },
+    "hash": {
+      "$ref": "provenance.schema.json#/$defs/hash"
+    },
+    "fieldProvenance": {
+      "$ref": "provenance.schema.json#/$defs/fieldProvenance"
+    },
+    "idList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "uniqueItems": true
+    },
+    "nonEmptyIdList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "modelProfileBinding": {
+      "type": "object",
+      "required": [
+        "model_profile_id",
+        "registry_version",
+        "model_profile_hash",
+        "provider",
+        "product_entry",
+        "account_region",
+        "model_build_or_revision",
+        "capability_verified_at",
+        "capability_status"
+      ],
+      "properties": {
+        "model_profile_id": {
+          "$ref": "#/$defs/id"
+        },
+        "registry_version": {
+          "$ref": "#/$defs/semver"
+        },
+        "model_profile_hash": {
+          "$ref": "#/$defs/hash"
+        },
+        "provider": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "product_entry": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "account_region": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "model_build_or_revision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "capability_verified_at": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "capability_status": {
+          "type": "string",
+          "enum": [
+            "verified",
+            "stale",
+            "unknown"
+          ]
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "referenceItem": {
+      "type": "object",
+      "required": [
+        "asset_id",
+        "purpose",
+        "priority"
+      ],
+      "properties": {
+        "asset_id": {
+          "$ref": "#/$defs/id"
+        },
+        "purpose": {
+          "type": "string",
+          "enum": [
+            "character_identity",
+            "wardrobe",
+            "location",
+            "prop",
+            "composition",
+            "action",
+            "camera_motion",
+            "timing",
+            "voice",
+            "music",
+            "sound_effect",
+            "first_frame",
+            "last_frame",
+            "other"
+          ]
+        },
+        "priority": {
+          "type": "string",
+          "enum": [
+            "required",
+            "preferred",
+            "optional"
+          ]
+        },
+        "source_in_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "source_out_seconds": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "referenceAssets": {
+      "type": "object",
+      "required": [
+        "images",
+        "videos",
+        "audio"
+      ],
+      "properties": {
+        "images": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/referenceItem"
+          },
+          "uniqueItems": true
+        },
+        "videos": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/referenceItem"
+          },
+          "uniqueItems": true
+        },
+        "audio": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/referenceItem"
+          },
+          "uniqueItems": true
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "frameTarget": {
+      "type": "object",
+      "required": [
+        "description",
+        "composition_hash"
+      ],
+      "properties": {
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1500
+        },
+        "reference_asset_id": {
+          "$ref": "#/$defs/id"
+        },
+        "composition_hash": {
+          "$ref": "#/$defs/hash"
+        },
+        "continuity_state_hash": {
+          "$ref": "#/$defs/hash"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "subjectLock": {
+      "type": "object",
+      "required": [
+        "subject_id",
+        "identity_anchor",
+        "reference_asset_ids",
+        "locked_attributes"
+      ],
+      "properties": {
+        "subject_id": {
+          "$ref": "#/$defs/id"
+        },
+        "identity_anchor": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1200
+        },
+        "reference_asset_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "locked_attributes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "promptSegment": {
+      "type": "object",
+      "required": [
+        "segment_id",
+        "start_seconds",
+        "end_seconds",
+        "visual_instruction",
+        "camera_instruction",
+        "audio_event_ids"
+      ],
+      "properties": {
+        "segment_id": {
+          "$ref": "#/$defs/id"
+        },
+        "start_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "end_seconds": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "shot_id": {
+          "$ref": "#/$defs/id"
+        },
+        "visual_instruction": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "camera_instruction": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "audio_event_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "required_end_state": {
+          "type": "string",
+          "maxLength": 1000
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "negativeConstraint": {
+      "type": "object",
+      "required": [
+        "category",
+        "instruction",
+        "severity"
+      ],
+      "properties": {
+        "category": {
+          "type": "string",
+          "enum": [
+            "identity",
+            "wardrobe",
+            "prop",
+            "action",
+            "composition",
+            "camera",
+            "physics",
+            "continuity",
+            "audio",
+            "text",
+            "safety",
+            "other"
+          ]
+        },
+        "instruction": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 800
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "blocking",
+            "major",
+            "minor"
+          ]
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "riskAssessment": {
+      "type": "object",
+      "required": [
+        "overall_score",
+        "risk_level",
+        "identity_risk",
+        "hand_prop_risk",
+        "lip_sync_risk",
+        "camera_motion_risk",
+        "spatial_risk",
+        "physics_risk",
+        "composition_drift_risk",
+        "multi_shot_boundary_risk",
+        "audio_risk",
+        "risk_rule_version"
+      ],
+      "properties": {
+        "overall_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "risk_level": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "blocking"
+          ]
+        },
+        "identity_risk": {
+          "$ref": "#/$defs/riskBand"
+        },
+        "hand_prop_risk": {
+          "$ref": "#/$defs/riskBand"
+        },
+        "lip_sync_risk": {
+          "$ref": "#/$defs/riskBand"
+        },
+        "camera_motion_risk": {
+          "$ref": "#/$defs/riskBand"
+        },
+        "spatial_risk": {
+          "$ref": "#/$defs/riskBand"
+        },
+        "physics_risk": {
+          "$ref": "#/$defs/riskBand"
+        },
+        "composition_drift_risk": {
+          "$ref": "#/$defs/riskBand"
+        },
+        "multi_shot_boundary_risk": {
+          "$ref": "#/$defs/riskBand"
+        },
+        "audio_risk": {
+          "$ref": "#/$defs/riskBand"
+        },
+        "risk_rule_version": {
+          "$ref": "#/$defs/semver"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "riskBand": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 5
+    },
+    "fallbackStep": {
+      "type": "object",
+      "required": [
+        "order",
+        "failure_category",
+        "action",
+        "next_method"
+      ],
+      "properties": {
+        "order": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "failure_category": {
+          "type": "string",
+          "enum": [
+            "identity_drift",
+            "hand_or_prop",
+            "lip_sync",
+            "camera_motion",
+            "spatial_relation",
+            "physics",
+            "composition_drift",
+            "multi_shot_boundary",
+            "audio",
+            "cost",
+            "safety",
+            "other"
+          ]
+        },
+        "action": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "next_method": {
+          "type": "string",
+          "enum": [
+            "retry_seedance",
+            "other_model",
+            "live_action",
+            "hybrid_composite",
+            "static_insert",
+            "graphic",
+            "omit_nonessential_action"
+          ]
+        },
+        "required_asset_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "maximum_attempts_before_switch": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

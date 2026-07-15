@@ -1,0 +1,245 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/metrics-config.schema.json",
+  "title": "Metrics Configuration",
+  "description": "预注册评测指标、分母、排除条件、统计方法、置信区间、方向、阈值、聚合方式和发布门禁，禁止只报告召回率或伪精确传播概率。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "metrics_config_id",
+    "config_version",
+    "frozen_at",
+    "metrics",
+    "release_gates",
+    "power_analysis_policy",
+    "multiple_comparison_policy",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": { "$ref": "#/$defs/semver" },
+    "created_at": { "$ref": "#/$defs/dateTime" },
+    "created_by_stage": { "$ref": "#/$defs/stageId" },
+    "source_hash": { "$ref": "#/$defs/hash" },
+    "metrics_config_id": { "$ref": "#/$defs/id" },
+    "config_version": { "$ref": "#/$defs/semver" },
+    "frozen_at": { "$ref": "#/$defs/dateTime" },
+    "metrics": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/metricDefinition" },
+      "minItems": 1
+    },
+    "release_gates": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/releaseGateDefinition" },
+      "minItems": 1
+    },
+    "required_metric_ids": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/id" },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "power_analysis_policy": {
+      "type": "object",
+      "required": [
+        "alpha",
+        "minimum_power",
+        "effect_measure",
+        "minimum_hidden_tasks",
+        "increase_sample_when_underpowered"
+      ],
+      "properties": {
+        "alpha": { "type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1 },
+        "minimum_power": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+        "effect_measure": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "minimum_detectable_effect": { "type": "number", "minimum": 0 },
+        "minimum_hidden_tasks": { "type": "integer", "minimum": 1 },
+        "increase_sample_when_underpowered": { "const": true },
+        "analysis_method": { "type": "string", "minLength": 1, "maxLength": 300 }
+      },
+      "unevaluatedProperties": false
+    },
+    "multiple_comparison_policy": {
+      "type": "object",
+      "required": ["method", "family_definition"],
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": ["none_predeclared_primary", "bonferroni", "holm", "benjamini_hochberg", "custom"]
+        },
+        "family_definition": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "custom_method": { "type": "string", "maxLength": 500 }
+      },
+      "unevaluatedProperties": false
+    },
+    "notes": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1, "maxLength": 1000 }
+    },
+    "field_provenance": { "$ref": "#/$defs/fieldProvenance" }
+  },
+  "$defs": {
+    "id": { "$ref": "provenance.schema.json#/$defs/artifactId" },
+    "semver": { "$ref": "provenance.schema.json#/$defs/semver" },
+    "dateTime": { "$ref": "provenance.schema.json#/$defs/dateTime" },
+    "stageId": { "$ref": "provenance.schema.json#/$defs/stageId" },
+    "hash": { "$ref": "provenance.schema.json#/$defs/hash" },
+    "fieldProvenance": { "$ref": "provenance.schema.json#/$defs/fieldProvenance" },
+    "idList": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/id" },
+      "uniqueItems": true
+    },
+    "threshold": {
+      "type": "object",
+      "required": ["operator", "value", "blocking"],
+      "properties": {
+        "operator": { "type": "string", "enum": [">", ">=", "<", "<=", "=", "!="] },
+        "value": { "type": "number" },
+        "blocking": { "type": "boolean" },
+        "unit": { "type": "string", "maxLength": 100 }
+      },
+      "unevaluatedProperties": false
+    },
+    "metricDefinition": {
+      "type": "object",
+      "required": [
+        "metric_id",
+        "name",
+        "category",
+        "description",
+        "value_type",
+        "direction",
+        "numerator",
+        "denominator",
+        "exclusions",
+        "aggregation",
+        "statistical_method",
+        "confidence_interval",
+        "thresholds",
+        "paired_metric_ids",
+        "release_relevance"
+      ],
+      "properties": {
+        "metric_id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "category": {
+          "type": "string",
+          "enum": [
+            "fidelity",
+            "traceability",
+            "atomicity",
+            "language",
+            "continuity",
+            "timing",
+            "prompt_alignment",
+            "generation",
+            "coverage",
+            "blocking",
+            "camera",
+            "timeline",
+            "audio",
+            "hook",
+            "repair",
+            "safety",
+            "rights",
+            "cost",
+            "blind_comparison",
+            "reviewer_agreement",
+            "release_quality",
+            "other"
+          ]
+        },
+        "description": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "value_type": { "type": "string", "enum": ["rate", "count", "score", "duration", "currency", "agreement", "binary"] },
+        "direction": { "type": "string", "enum": ["higher_is_better", "lower_is_better", "target_range", "exact"] },
+        "numerator": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "denominator": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "exclusions": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "maxLength": 500 }
+        },
+        "aggregation": {
+          "type": "string",
+          "enum": ["micro", "macro", "weighted", "mean", "median", "worst_case", "all_must_pass", "custom"]
+        },
+        "custom_aggregation": { "type": "string", "maxLength": 500 },
+        "statistical_method": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "confidence_interval": {
+          "type": "object",
+          "required": ["required", "level", "method"],
+          "properties": {
+            "required": { "type": "boolean" },
+            "level": { "type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1 },
+            "method": {
+              "type": "string",
+              "enum": ["wilson", "clopper_pearson", "bootstrap", "normal", "t", "icc", "kappa", "custom", "not_applicable"]
+            },
+            "custom_method": { "type": "string", "maxLength": 300 }
+          },
+          "unevaluatedProperties": false
+        },
+        "thresholds": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/threshold" },
+          "minItems": 1
+        },
+        "paired_metric_ids": { "$ref": "#/$defs/idList" },
+        "release_relevance": { "type": "string", "enum": ["blocking", "required", "diagnostic", "informational"] },
+        "rubric_version": { "$ref": "#/$defs/semver" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "name": { "pattern": "(?i)(recall|precision|召回|精确)" } },
+            "required": ["name"]
+          },
+          "then": {
+            "properties": { "paired_metric_ids": { "minItems": 1 } }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "releaseGateDefinition": {
+      "type": "object",
+      "required": [
+        "gate_id",
+        "name",
+        "gate_type",
+        "metric_ids",
+        "evaluation_rule",
+        "severity_on_failure",
+        "waiver_allowed",
+        "evidence_required"
+      ],
+      "properties": {
+        "gate_id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "gate_type": { "type": "string", "enum": ["metric", "artifact", "process", "legal", "manual_approval"] },
+        "metric_ids": { "$ref": "#/$defs/idList" },
+        "evaluation_rule": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "severity_on_failure": {
+          "type": "string",
+          "enum": ["blocker", "critical", "error", "warning"]
+        },
+        "waiver_allowed": { "type": "boolean" },
+        "waiver_authority_roles": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "maxLength": 100 },
+          "uniqueItems": true
+        },
+        "evidence_required": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "maxLength": 300 },
+          "minItems": 1
+        }
+      },
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

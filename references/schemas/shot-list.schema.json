@@ -1,0 +1,826 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/shot-list.schema.json",
+  "title": "Atomic Shot List",
+  "description": "定义可追溯、可拍摄、可生成和可剪辑的原子镜头。默认每镜只有一个主导景别、连续时空、主要动作和叙事目的；连续长镜头必须显式声明例外。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "shot_list_id",
+    "job_id",
+    "scene_ids",
+    "shots",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "#/$defs/semver"
+    },
+    "created_at": {
+      "$ref": "#/$defs/dateTime"
+    },
+    "created_by_stage": {
+      "$ref": "#/$defs/stageId"
+    },
+    "source_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "shot_list_id": {
+      "$ref": "#/$defs/id"
+    },
+    "job_id": {
+      "$ref": "#/$defs/id"
+    },
+    "scene_ids": {
+      "$ref": "#/$defs/nonEmptyIdList"
+    },
+    "shots": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/shot"
+      },
+      "minItems": 1
+    },
+    "field_provenance": {
+      "$ref": "#/$defs/fieldProvenance"
+    }
+  },
+  "$defs": {
+    "id": {
+      "$ref": "provenance.schema.json#/$defs/artifactId"
+    },
+    "semver": {
+      "$ref": "provenance.schema.json#/$defs/semver"
+    },
+    "dateTime": {
+      "$ref": "provenance.schema.json#/$defs/dateTime"
+    },
+    "stageId": {
+      "$ref": "provenance.schema.json#/$defs/stageId"
+    },
+    "hash": {
+      "$ref": "provenance.schema.json#/$defs/hash"
+    },
+    "sourceSpan": {
+      "$ref": "provenance.schema.json#/$defs/sourceSpan"
+    },
+    "fieldProvenance": {
+      "$ref": "provenance.schema.json#/$defs/fieldProvenance"
+    },
+    "idList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "uniqueItems": true
+    },
+    "nonEmptyIdList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "seconds": {
+      "type": "number",
+      "minimum": 0
+    },
+    "positiveSeconds": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "shotSize": {
+      "type": "string",
+      "enum": [
+        "extreme_wide",
+        "wide",
+        "full",
+        "medium_wide",
+        "medium",
+        "medium_close",
+        "close_up",
+        "extreme_close_up",
+        "insert",
+        "over_shoulder",
+        "two_shot",
+        "group_shot",
+        "pov",
+        "other"
+      ]
+    },
+    "normalizedPoint": {
+      "type": "object",
+      "required": [
+        "x",
+        "y"
+      ],
+      "properties": {
+        "x": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "y": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "composition": {
+      "type": "object",
+      "required": [
+        "shot_size",
+        "subject_ids",
+        "framing",
+        "screen_regions"
+      ],
+      "properties": {
+        "shot_size": {
+          "$ref": "#/$defs/shotSize"
+        },
+        "subject_ids": {
+          "$ref": "#/$defs/nonEmptyIdList"
+        },
+        "framing": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "screen_regions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "subject_id",
+              "anchor"
+            ],
+            "properties": {
+              "subject_id": {
+                "$ref": "#/$defs/id"
+              },
+              "anchor": {
+                "$ref": "#/$defs/normalizedPoint"
+              },
+              "depth_plane": {
+                "type": "string",
+                "enum": [
+                  "foreground",
+                  "midground",
+                  "background"
+                ]
+              }
+            },
+            "unevaluatedProperties": false
+          },
+          "minItems": 1
+        },
+        "headroom": {
+          "type": "string",
+          "enum": [
+            "tight",
+            "standard",
+            "loose"
+          ]
+        },
+        "look_room_direction": {
+          "type": "string",
+          "enum": [
+            "screen_left",
+            "screen_right",
+            "camera",
+            "none",
+            "variable"
+          ]
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "cameraMotion": {
+      "type": "object",
+      "required": [
+        "motion_type",
+        "path",
+        "complexity"
+      ],
+      "properties": {
+        "motion_type": {
+          "type": "string",
+          "enum": [
+            "locked",
+            "handheld_static",
+            "pan",
+            "tilt",
+            "dolly_in",
+            "dolly_out",
+            "truck_left",
+            "truck_right",
+            "pedestal_up",
+            "pedestal_down",
+            "arc",
+            "crane",
+            "zoom_in",
+            "zoom_out",
+            "follow",
+            "compound"
+          ]
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1200
+        },
+        "complexity": {
+          "type": "string",
+          "enum": [
+            "none",
+            "simple",
+            "advanced"
+          ]
+        },
+        "start_mark_id": {
+          "$ref": "#/$defs/id"
+        },
+        "end_mark_id": {
+          "$ref": "#/$defs/id"
+        },
+        "speed_profile": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "stabilization": {
+          "type": "string",
+          "enum": [
+            "tripod",
+            "gimbal",
+            "dolly",
+            "handheld",
+            "virtual",
+            "other"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "motion_type": {
+                "const": "compound"
+              }
+            },
+            "required": [
+              "motion_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "complexity": {
+                "const": "advanced"
+              }
+            },
+            "required": [
+              "speed_profile"
+            ]
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "stateSnapshot": {
+      "type": "object",
+      "required": [
+        "summary",
+        "continuity_entry_id",
+        "state_hash"
+      ],
+      "properties": {
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "continuity_entry_id": {
+          "$ref": "#/$defs/id"
+        },
+        "state_hash": {
+          "$ref": "#/$defs/hash"
+        },
+        "character_state_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "prop_state_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "environment_state_ids": {
+          "$ref": "#/$defs/idList"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "dependency": {
+      "type": "object",
+      "required": [
+        "event_id",
+        "relation",
+        "minimum_gap_seconds"
+      ],
+      "properties": {
+        "event_id": {
+          "$ref": "#/$defs/id"
+        },
+        "relation": {
+          "type": "string",
+          "enum": [
+            "finish_to_start",
+            "start_to_start",
+            "finish_to_finish",
+            "start_to_finish"
+          ]
+        },
+        "minimum_gap_seconds": {
+          "type": "number"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "timedEvent": {
+      "type": "object",
+      "required": [
+        "event_id",
+        "event_type",
+        "timebase",
+        "start_seconds",
+        "end_seconds",
+        "may_overlap",
+        "dependencies"
+      ],
+      "properties": {
+        "event_id": {
+          "$ref": "#/$defs/id"
+        },
+        "event_type": {
+          "type": "string",
+          "enum": [
+            "action",
+            "dialogue",
+            "reaction",
+            "camera",
+            "sound",
+            "pause",
+            "transition"
+          ]
+        },
+        "timebase": {
+          "type": "string",
+          "enum": [
+            "shot_local",
+            "timeline_global"
+          ]
+        },
+        "start_seconds": {
+          "$ref": "#/$defs/seconds"
+        },
+        "end_seconds": {
+          "$ref": "#/$defs/seconds"
+        },
+        "may_overlap": {
+          "type": "boolean"
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/dependency"
+          },
+          "uniqueItems": true
+        },
+        "audio_event_id": {
+          "$ref": "#/$defs/id"
+        },
+        "dialogue_block_id": {
+          "$ref": "#/$defs/id"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "critical": {
+          "type": "boolean"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "timingPlan": {
+      "type": "object",
+      "required": [
+        "timebase_rate",
+        "events",
+        "critical_path_event_ids",
+        "critical_path_duration_seconds",
+        "calculation_status"
+      ],
+      "properties": {
+        "timebase_rate": {
+          "type": "object",
+          "required": [
+            "frames_per_second",
+            "drop_frame"
+          ],
+          "properties": {
+            "frames_per_second": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "drop_frame": {
+              "type": "boolean"
+            }
+          },
+          "unevaluatedProperties": false
+        },
+        "timeline_origin_seconds": {
+          "$ref": "#/$defs/seconds"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/timedEvent"
+          },
+          "minItems": 1
+        },
+        "critical_path_event_ids": {
+          "$ref": "#/$defs/nonEmptyIdList"
+        },
+        "critical_path_duration_seconds": {
+          "$ref": "#/$defs/positiveSeconds"
+        },
+        "calculation_status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "computed",
+            "invalid_cycle",
+            "over_duration"
+          ]
+        },
+        "dialogue_rate_profile_id": {
+          "$ref": "#/$defs/id"
+        },
+        "calculation_rule_version": {
+          "$ref": "#/$defs/semver"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "productionDecision": {
+      "type": "object",
+      "required": [
+        "primary_method",
+        "fallback_method",
+        "switch_conditions",
+        "required_handoff_asset_ids"
+      ],
+      "properties": {
+        "primary_method": {
+          "type": "string",
+          "enum": [
+            "live",
+            "seedance",
+            "hybrid",
+            "composite",
+            "graphic"
+          ]
+        },
+        "fallback_method": {
+          "type": "string",
+          "enum": [
+            "live",
+            "seedance",
+            "other_model",
+            "hybrid",
+            "composite",
+            "static_insert",
+            "graphic",
+            "omit_nonessential_action"
+          ]
+        },
+        "switch_conditions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "required_handoff_asset_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "decision_reason": {
+          "type": "string",
+          "maxLength": 1000
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "shot": {
+      "type": "object",
+      "required": [
+        "shot_id",
+        "sequence",
+        "scene_id",
+        "beat_ids",
+        "fact_ids",
+        "camera_setup_id",
+        "coverage_role",
+        "edit_duration_seconds",
+        "capture_or_generation_duration_seconds",
+        "head_handle_seconds",
+        "tail_handle_seconds",
+        "dominant_shot_size",
+        "start_composition",
+        "end_composition",
+        "allowed_composition_drift",
+        "long_take_exception",
+        "camera_angle",
+        "camera_position",
+        "camera_motion",
+        "primary_subject_id",
+        "start_state",
+        "visible_action",
+        "end_state",
+        "timing",
+        "narrative_purpose",
+        "production_decision",
+        "platform_profile_id",
+        "safe_zone_id",
+        "subtitle_zone_id",
+        "ui_occlusion_zone_ids",
+        "field_provenance"
+      ],
+      "properties": {
+        "shot_id": {
+          "$ref": "#/$defs/id"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "scene_id": {
+          "$ref": "#/$defs/id"
+        },
+        "beat_ids": {
+          "$ref": "#/$defs/nonEmptyIdList"
+        },
+        "source_spans": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sourceSpan"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "authorization_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "fact_ids": {
+          "$ref": "#/$defs/nonEmptyIdList"
+        },
+        "camera_setup_id": {
+          "$ref": "#/$defs/id"
+        },
+        "blocking_plan_id": {
+          "$ref": "#/$defs/id"
+        },
+        "coverage_need_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "coverage_role": {
+          "type": "string",
+          "enum": [
+            "master",
+            "two_shot",
+            "single",
+            "over_shoulder",
+            "reaction",
+            "insert",
+            "detail",
+            "pov",
+            "safety",
+            "transition",
+            "clean_plate",
+            "other"
+          ]
+        },
+        "coverage_priority": {
+          "type": "string",
+          "enum": [
+            "must_have",
+            "safety",
+            "optional"
+          ]
+        },
+        "edit_duration_seconds": {
+          "$ref": "#/$defs/positiveSeconds"
+        },
+        "capture_or_generation_duration_seconds": {
+          "$ref": "#/$defs/positiveSeconds"
+        },
+        "head_handle_seconds": {
+          "$ref": "#/$defs/seconds"
+        },
+        "tail_handle_seconds": {
+          "$ref": "#/$defs/seconds"
+        },
+        "dominant_shot_size": {
+          "$ref": "#/$defs/shotSize"
+        },
+        "start_composition": {
+          "$ref": "#/$defs/composition"
+        },
+        "end_composition": {
+          "$ref": "#/$defs/composition"
+        },
+        "allowed_composition_drift": {
+          "type": "string",
+          "enum": [
+            "none",
+            "same_size_minor",
+            "adjacent_size_continuous",
+            "declared_long_take_path"
+          ]
+        },
+        "long_take_exception": {
+          "type": "boolean",
+          "default": false
+        },
+        "long_take_exception_reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "continuous_camera_path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1600
+        },
+        "long_take_fallback_plan": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "minItems": 1
+        },
+        "camera_angle": {
+          "type": "string",
+          "enum": [
+            "eye_level",
+            "high",
+            "low",
+            "overhead",
+            "dutch",
+            "ground_level",
+            "subjective",
+            "other"
+          ]
+        },
+        "camera_position": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "camera_motion": {
+          "$ref": "#/$defs/cameraMotion"
+        },
+        "primary_subject_id": {
+          "$ref": "#/$defs/id"
+        },
+        "supporting_subject_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "start_state": {
+          "$ref": "#/$defs/stateSnapshot"
+        },
+        "visible_action": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "end_state": {
+          "$ref": "#/$defs/stateSnapshot"
+        },
+        "dialogue_block_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "audio_event_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "prop_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "timing": {
+          "$ref": "#/$defs/timingPlan"
+        },
+        "continuity_in_entry_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "continuity_out_entry_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "narrative_purpose": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "production_decision": {
+          "$ref": "#/$defs/productionDecision"
+        },
+        "generation_risk_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "platform_profile_id": {
+          "$ref": "#/$defs/id"
+        },
+        "safe_zone_id": {
+          "$ref": "#/$defs/id"
+        },
+        "subtitle_zone_id": {
+          "$ref": "#/$defs/id"
+        },
+        "ui_occlusion_zone_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "field_provenance": {
+          "$ref": "#/$defs/fieldProvenance"
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "source_spans"
+          ]
+        },
+        {
+          "required": [
+            "authorization_ids"
+          ],
+          "properties": {
+            "authorization_ids": {
+              "minItems": 1
+            }
+          }
+        }
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "long_take_exception": {
+                "const": true
+              }
+            },
+            "required": [
+              "long_take_exception"
+            ]
+          },
+          "then": {
+            "required": [
+              "long_take_exception_reason",
+              "continuous_camera_path",
+              "long_take_fallback_plan"
+            ],
+            "properties": {
+              "allowed_composition_drift": {
+                "enum": [
+                  "adjacent_size_continuous",
+                  "declared_long_take_path"
+                ]
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "allowed_composition_drift": {
+                "enum": [
+                  "none",
+                  "same_size_minor"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

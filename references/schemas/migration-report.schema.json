@@ -1,0 +1,225 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/migration-report.schema.json",
+  "title": "Schema Migration Report",
+  "description": "记录受控 Schema 迁移的源目标版本、备份、变换、写入结果、验证、差异、回滚和审批证据。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "migration_report_id",
+    "migration_run_id",
+    "artifact_id",
+    "artifact_type",
+    "source_schema",
+    "target_schema",
+    "source_artifact_hash",
+    "backup",
+    "migration_plan_hash",
+    "operations",
+    "status",
+    "validation",
+    "differences",
+    "rollback",
+    "approval",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": { "$ref": "#/$defs/semver" },
+    "created_at": { "$ref": "#/$defs/dateTime" },
+    "created_by_stage": { "$ref": "#/$defs/stageId" },
+    "source_hash": { "$ref": "#/$defs/hash" },
+    "migration_report_id": { "$ref": "#/$defs/id" },
+    "migration_run_id": { "$ref": "#/$defs/id" },
+    "artifact_id": { "$ref": "#/$defs/id" },
+    "artifact_type": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "source_schema": { "$ref": "#/$defs/schemaBinding" },
+    "target_schema": { "$ref": "#/$defs/schemaBinding" },
+    "source_artifact_hash": { "$ref": "#/$defs/hash" },
+    "target_artifact_hash": { "$ref": "#/$defs/hash" },
+    "backup": {
+      "type": "object",
+      "required": ["backup_locator", "backup_hash", "created_at", "verified"],
+      "properties": {
+        "backup_locator": { "type": "string", "minLength": 1, "maxLength": 2000 },
+        "backup_hash": { "$ref": "#/$defs/hash" },
+        "created_at": { "$ref": "#/$defs/dateTime" },
+        "verified": { "const": true }
+      },
+      "unevaluatedProperties": false
+    },
+    "migration_plan_hash": { "$ref": "#/$defs/hash" },
+    "operations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/migrationOperation" },
+      "minItems": 1
+    },
+    "started_at": { "$ref": "#/$defs/dateTime" },
+    "completed_at": { "$ref": "#/$defs/dateTime" },
+    "status": {
+      "type": "string",
+      "enum": ["planned", "running", "succeeded", "failed", "rolled_back", "cancelled"]
+    },
+    "validation": {
+      "type": "object",
+      "required": [
+        "target_schema_valid",
+        "cross_reference_valid",
+        "invariants_valid",
+        "validator_results",
+        "validation_hash"
+      ],
+      "properties": {
+        "target_schema_valid": { "type": "boolean" },
+        "cross_reference_valid": { "type": "boolean" },
+        "invariants_valid": { "type": "boolean" },
+        "validator_results": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["validator", "version", "status", "issue_ids"],
+            "properties": {
+              "validator": { "type": "string", "minLength": 1, "maxLength": 200 },
+              "version": { "$ref": "#/$defs/semver" },
+              "status": { "type": "string", "enum": ["pass", "fail", "warning"] },
+              "issue_ids": { "$ref": "#/$defs/idList" }
+            },
+            "unevaluatedProperties": false
+          }
+        },
+        "validation_hash": { "$ref": "#/$defs/hash" }
+      },
+      "unevaluatedProperties": false
+    },
+    "differences": {
+      "type": "object",
+      "required": [
+        "added_paths",
+        "removed_paths",
+        "changed_paths",
+        "preserved_locked_fact_ids",
+        "unauthorized_changes"
+      ],
+      "properties": {
+        "added_paths": { "$ref": "#/$defs/pointerList" },
+        "removed_paths": { "$ref": "#/$defs/pointerList" },
+        "changed_paths": { "$ref": "#/$defs/pointerList" },
+        "preserved_locked_fact_ids": { "$ref": "#/$defs/idList" },
+        "unauthorized_changes": { "$ref": "#/$defs/pointerList" },
+        "diff_hash": { "$ref": "#/$defs/hash" }
+      },
+      "unevaluatedProperties": false
+    },
+    "rollback": {
+      "type": "object",
+      "required": ["available", "tested", "status"],
+      "properties": {
+        "available": { "const": true },
+        "tested": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["not_needed", "ready", "executed", "failed"] },
+        "rollback_run_id": { "$ref": "#/$defs/id" },
+        "restored_artifact_hash": { "$ref": "#/$defs/hash" }
+      },
+      "unevaluatedProperties": false
+    },
+    "approval": {
+      "type": "object",
+      "required": ["required", "status"],
+      "properties": {
+        "required": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["not_required", "pending", "approved", "rejected"] },
+        "approver_ids": { "$ref": "#/$defs/idList" },
+        "approved_at": { "$ref": "#/$defs/dateTime" }
+      },
+      "unevaluatedProperties": false
+    },
+    "run_snapshot_id": { "$ref": "#/$defs/id" },
+    "field_provenance": { "$ref": "#/$defs/fieldProvenance" }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "status": { "const": "succeeded" } },
+        "required": ["status"]
+      },
+      "then": {
+        "required": ["target_artifact_hash", "completed_at", "run_snapshot_id"],
+        "properties": {
+          "validation": {
+            "properties": {
+              "target_schema_valid": { "const": true },
+              "cross_reference_valid": { "const": true },
+              "invariants_valid": { "const": true }
+            }
+          },
+          "differences": {
+            "properties": { "unauthorized_changes": { "maxItems": 0 } }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "status": { "const": "rolled_back" } },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "rollback": {
+            "required": ["rollback_run_id", "restored_artifact_hash"],
+            "properties": { "status": { "const": "executed" } }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "id": { "$ref": "provenance.schema.json#/$defs/artifactId" },
+    "semver": { "$ref": "provenance.schema.json#/$defs/semver" },
+    "dateTime": { "$ref": "provenance.schema.json#/$defs/dateTime" },
+    "stageId": { "$ref": "provenance.schema.json#/$defs/stageId" },
+    "hash": { "$ref": "provenance.schema.json#/$defs/hash" },
+    "fieldProvenance": { "$ref": "provenance.schema.json#/$defs/fieldProvenance" },
+    "jsonPointer": { "$ref": "provenance.schema.json#/$defs/jsonPointer" },
+    "idList": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/id" },
+      "uniqueItems": true
+    },
+    "pointerList": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/jsonPointer" },
+      "uniqueItems": true
+    },
+    "schemaBinding": {
+      "type": "object",
+      "required": ["schema_id", "schema_version", "schema_hash"],
+      "properties": {
+        "schema_id": { "type": "string", "format": "uri" },
+        "schema_version": { "$ref": "#/$defs/semver" },
+        "schema_hash": { "$ref": "#/$defs/hash" }
+      },
+      "unevaluatedProperties": false
+    },
+    "migrationOperation": {
+      "type": "object",
+      "required": ["operation_id", "operation_type", "source_paths", "target_paths", "description"],
+      "properties": {
+        "operation_id": { "$ref": "#/$defs/id" },
+        "operation_type": {
+          "type": "string",
+          "enum": ["add_default", "rename", "move", "split", "merge", "transform", "remove", "recompute"]
+        },
+        "source_paths": { "$ref": "#/$defs/pointerList" },
+        "target_paths": { "$ref": "#/$defs/pointerList" },
+        "description": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "authorization_id": { "$ref": "#/$defs/id" },
+        "lossy": { "type": "boolean" }
+      },
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

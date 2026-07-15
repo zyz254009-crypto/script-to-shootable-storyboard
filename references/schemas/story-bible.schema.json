@@ -1,0 +1,789 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/story-bible.schema.json",
+  "title": "Story Bible",
+  "description": "保存人物、关系、场景、道具、世界规则、秘密和剧情时间线的稳定锚点。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "story_bible_id",
+    "job_id",
+    "source_manifest_ids",
+    "fact_ledger_id",
+    "characters",
+    "locations",
+    "props",
+    "relationships",
+    "world_rules",
+    "timeline_events",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "#/$defs/semver"
+    },
+    "created_at": {
+      "$ref": "#/$defs/dateTime"
+    },
+    "created_by_stage": {
+      "$ref": "#/$defs/stageId"
+    },
+    "source_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "story_bible_id": {
+      "$ref": "#/$defs/id"
+    },
+    "job_id": {
+      "$ref": "#/$defs/id"
+    },
+    "source_manifest_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "fact_ledger_id": {
+      "$ref": "#/$defs/id"
+    },
+    "characters": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/character"
+      }
+    },
+    "locations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/location"
+      }
+    },
+    "props": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/prop"
+      }
+    },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/relationship"
+      }
+    },
+    "world_rules": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/worldRule"
+      }
+    },
+    "known_secrets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/knownSecret"
+      }
+    },
+    "timeline_events": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/timelineEvent"
+      }
+    },
+    "field_provenance": {
+      "$ref": "#/$defs/fieldProvenance"
+    }
+  },
+  "$defs": {
+    "id": {
+      "$ref": "provenance.schema.json#/$defs/artifactId"
+    },
+    "semver": {
+      "$ref": "provenance.schema.json#/$defs/semver"
+    },
+    "dateTime": {
+      "$ref": "provenance.schema.json#/$defs/dateTime"
+    },
+    "stageId": {
+      "$ref": "provenance.schema.json#/$defs/stageId"
+    },
+    "hash": {
+      "$ref": "provenance.schema.json#/$defs/hash"
+    },
+    "fieldProvenance": {
+      "$ref": "provenance.schema.json#/$defs/fieldProvenance"
+    },
+    "textList": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 500
+      },
+      "uniqueItems": true
+    },
+    "idList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "uniqueItems": true
+    },
+    "ageRange": {
+      "type": "object",
+      "required": [
+        "minimum",
+        "maximum"
+      ],
+      "properties": {
+        "minimum": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 150
+        },
+        "maximum": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 150
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "wardrobeState": {
+      "type": "object",
+      "required": [
+        "scene_id",
+        "description"
+      ],
+      "properties": {
+        "scene_id": {
+          "$ref": "#/$defs/id"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "fixed_visual_anchors": {
+          "$ref": "#/$defs/textList"
+        },
+        "state_fact_ids": {
+          "$ref": "#/$defs/idList"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "changeableState": {
+      "type": "object",
+      "required": [
+        "state_id",
+        "state_type",
+        "initial_value"
+      ],
+      "properties": {
+        "state_id": {
+          "$ref": "#/$defs/id"
+        },
+        "state_type": {
+          "type": "string",
+          "enum": [
+            "wardrobe",
+            "injury",
+            "dirt",
+            "emotion_performance_level",
+            "prop_possession",
+            "location",
+            "knowledge",
+            "other"
+          ]
+        },
+        "initial_value": {
+          "type": [
+            "string",
+            "number",
+            "boolean",
+            "null"
+          ]
+        },
+        "fact_ids": {
+          "$ref": "#/$defs/idList"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "character": {
+      "type": "object",
+      "required": [
+        "character_id",
+        "name",
+        "appearance_anchor",
+        "speech_style",
+        "current_goals",
+        "hidden_plan",
+        "knowledge_states",
+        "fixed_traits",
+        "changeable_states",
+        "fact_ids",
+        "field_provenance"
+      ],
+      "properties": {
+        "character_id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "aliases": {
+          "$ref": "#/$defs/textList"
+        },
+        "age_range": {
+          "$ref": "#/$defs/ageRange"
+        },
+        "appearance_anchor": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1500
+        },
+        "wardrobe_by_scene": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/wardrobeState"
+          }
+        },
+        "speech_style": {
+          "$ref": "#/$defs/speechStyle"
+        },
+        "current_goals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/characterGoal"
+          },
+          "minItems": 1
+        },
+        "hidden_plan": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/hiddenPlan"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "knowledge_states": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/knowledgeState"
+          }
+        },
+        "fixed_traits": {
+          "$ref": "#/$defs/textList"
+        },
+        "changeable_states": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/changeableState"
+          }
+        },
+        "reference_asset_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "fact_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "field_provenance": {
+          "$ref": "#/$defs/fieldProvenance"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "relationship": {
+      "type": "object",
+      "required": [
+        "relationship_id",
+        "participant_character_ids",
+        "relationship_type",
+        "valid_from_beat_id",
+        "fact_ids",
+        "field_provenance"
+      ],
+      "properties": {
+        "relationship_id": {
+          "$ref": "#/$defs/id"
+        },
+        "participant_character_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "minItems": 2,
+          "uniqueItems": true
+        },
+        "relationship_type": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "valid_from_beat_id": {
+          "$ref": "#/$defs/id"
+        },
+        "valid_until_beat_id": {
+          "$ref": "#/$defs/id"
+        },
+        "power_state": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "public_description": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "hidden_description": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "fact_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "field_provenance": {
+          "$ref": "#/$defs/fieldProvenance"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "entranceExit": {
+      "type": "object",
+      "required": [
+        "portal_id",
+        "label",
+        "position_description"
+      ],
+      "properties": {
+        "portal_id": {
+          "$ref": "#/$defs/id"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "position_description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "connects_to_location_id": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "location": {
+      "type": "object",
+      "required": [
+        "location_id",
+        "name",
+        "layout",
+        "entrances_and_exits",
+        "screen_direction_axis",
+        "fixed_objects",
+        "lighting",
+        "ambient_sound",
+        "fact_ids",
+        "field_provenance"
+      ],
+      "properties": {
+        "location_id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "time_of_day": {
+          "type": "string",
+          "enum": [
+            "dawn",
+            "day",
+            "dusk",
+            "night",
+            "variable",
+            "unspecified"
+          ]
+        },
+        "layout": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "entrances_and_exits": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/entranceExit"
+          }
+        },
+        "screen_direction_axis": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "fixed_objects": {
+          "$ref": "#/$defs/textList"
+        },
+        "lighting": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "ambient_sound": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "reference_asset_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "fact_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "field_provenance": {
+          "$ref": "#/$defs/fieldProvenance"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "propStateChange": {
+      "type": "object",
+      "required": [
+        "state_change_id",
+        "from_state",
+        "to_state",
+        "fact_ids"
+      ],
+      "properties": {
+        "state_change_id": {
+          "$ref": "#/$defs/id"
+        },
+        "scene_id": {
+          "$ref": "#/$defs/id"
+        },
+        "beat_id": {
+          "$ref": "#/$defs/id"
+        },
+        "from_state": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "to_state": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "fact_ids": {
+          "$ref": "#/$defs/idList"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "prop": {
+      "type": "object",
+      "required": [
+        "prop_id",
+        "name",
+        "appearance",
+        "initial_location_id",
+        "state_changes",
+        "handedness",
+        "fact_ids",
+        "field_provenance"
+      ],
+      "properties": {
+        "prop_id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "appearance": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "owner_character_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "initial_location_id": {
+          "$ref": "#/$defs/id"
+        },
+        "state_changes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/propStateChange"
+          }
+        },
+        "handedness": {
+          "type": "string",
+          "enum": [
+            "left",
+            "right",
+            "both",
+            "not_handheld",
+            "variable",
+            "unspecified"
+          ]
+        },
+        "reference_asset_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "fact_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "field_provenance": {
+          "$ref": "#/$defs/fieldProvenance"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "worldRule": {
+      "type": "object",
+      "required": [
+        "world_rule_id",
+        "rule",
+        "locked",
+        "fact_ids",
+        "field_provenance"
+      ],
+      "properties": {
+        "world_rule_id": {
+          "$ref": "#/$defs/id"
+        },
+        "rule": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1500
+        },
+        "locked": {
+          "type": "boolean"
+        },
+        "fact_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "field_provenance": {
+          "$ref": "#/$defs/fieldProvenance"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "knownSecret": {
+      "type": "object",
+      "required": [
+        "secret_id",
+        "description",
+        "known_by_character_ids",
+        "learned_at_beat_ids",
+        "suspected_by_character_ids",
+        "fact_ids",
+        "field_provenance"
+      ],
+      "properties": {
+        "secret_id": {
+          "$ref": "#/$defs/id"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1500
+        },
+        "known_by_character_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "learned_at_beat_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "public_from_beat_id": {
+          "$ref": "#/$defs/id"
+        },
+        "suspected_by_character_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "hidden_from_character_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "fact_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "field_provenance": {
+          "$ref": "#/$defs/fieldProvenance"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "speechStyle": {
+      "type": "object",
+      "required": [
+        "register",
+        "sentence_patterns",
+        "forbidden_phrases",
+        "address_rules",
+        "behavior_anchors"
+      ],
+      "properties": {
+        "register": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "sentence_patterns": {
+          "$ref": "#/$defs/textList"
+        },
+        "forbidden_phrases": {
+          "$ref": "#/$defs/textList"
+        },
+        "address_rules": {
+          "$ref": "#/$defs/textList"
+        },
+        "behavior_anchors": {
+          "$ref": "#/$defs/textList"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "characterGoal": {
+      "type": "object",
+      "required": [
+        "goal_id",
+        "description",
+        "valid_from_beat_id"
+      ],
+      "properties": {
+        "goal_id": {
+          "$ref": "#/$defs/id"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "valid_from_beat_id": {
+          "$ref": "#/$defs/id"
+        },
+        "valid_until_beat_id": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "hiddenPlan": {
+      "type": "object",
+      "required": [
+        "description",
+        "valid_from_beat_id",
+        "known_by_character_ids"
+      ],
+      "properties": {
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1200
+        },
+        "valid_from_beat_id": {
+          "$ref": "#/$defs/id"
+        },
+        "valid_until_beat_id": {
+          "$ref": "#/$defs/id"
+        },
+        "known_by_character_ids": {
+          "$ref": "#/$defs/idList"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "knowledgeState": {
+      "type": "object",
+      "required": [
+        "knowledge_item_id",
+        "status",
+        "valid_from_beat_id"
+      ],
+      "properties": {
+        "knowledge_item_id": {
+          "$ref": "#/$defs/id"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "unknown",
+            "suspected",
+            "known",
+            "believed_false",
+            "public"
+          ]
+        },
+        "valid_from_beat_id": {
+          "$ref": "#/$defs/id"
+        },
+        "valid_until_beat_id": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "timelineEvent": {
+      "type": "object",
+      "required": [
+        "timeline_event_id",
+        "sequence",
+        "description",
+        "fact_ids",
+        "field_provenance"
+      ],
+      "properties": {
+        "timeline_event_id": {
+          "$ref": "#/$defs/id"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "story_time": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "scene_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "beat_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1500
+        },
+        "fact_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "field_provenance": {
+          "$ref": "#/$defs/fieldProvenance"
+        }
+      },
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

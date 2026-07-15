@@ -1,0 +1,286 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/source-manifest.schema.json",
+  "title": "Source Manifest",
+  "description": "冻结原始输入、修订版本、稳定文本范围和源内结构，供事实与字段级来源追踪使用。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "source_manifest_id",
+    "job_id",
+    "source_document_id",
+    "source_revision",
+    "document_type",
+    "language",
+    "content_hash",
+    "stable_spans",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "#/$defs/semver"
+    },
+    "created_at": {
+      "$ref": "#/$defs/dateTime"
+    },
+    "created_by_stage": {
+      "$ref": "#/$defs/stageId"
+    },
+    "source_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "source_manifest_id": {
+      "$ref": "#/$defs/id"
+    },
+    "job_id": {
+      "$ref": "#/$defs/id"
+    },
+    "source_document_id": {
+      "$ref": "#/$defs/id"
+    },
+    "source_revision": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80
+    },
+    "document_type": {
+      "type": "string",
+      "enum": [
+        "script",
+        "scene_draft",
+        "synopsis",
+        "dialogue_draft",
+        "existing_storyboard",
+        "seedance_prompt",
+        "supplemental_note"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "maxLength": 300
+    },
+    "language": {
+      "type": "string",
+      "pattern": "^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$"
+    },
+    "original_filename": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500
+    },
+    "media_type": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 120
+    },
+    "content_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "normalized_text_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "ingested_at": {
+      "$ref": "#/$defs/dateTime"
+    },
+    "immutable": {
+      "type": "boolean",
+      "const": true,
+      "default": true
+    },
+    "stable_spans": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/stableSpan"
+      },
+      "minItems": 1
+    },
+    "scene_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "uniqueItems": true
+    },
+    "dialogue_blocks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/dialogueBlock"
+      }
+    },
+    "character_mentions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/characterMention"
+      }
+    },
+    "immutable_fact_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "uniqueItems": true
+    },
+    "authorization_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "uniqueItems": true
+    },
+    "field_provenance": {
+      "$ref": "#/$defs/fieldProvenance"
+    }
+  },
+  "$defs": {
+    "id": {
+      "$ref": "provenance.schema.json#/$defs/artifactId"
+    },
+    "semver": {
+      "$ref": "provenance.schema.json#/$defs/semver"
+    },
+    "dateTime": {
+      "$ref": "provenance.schema.json#/$defs/dateTime"
+    },
+    "stageId": {
+      "$ref": "provenance.schema.json#/$defs/stageId"
+    },
+    "hash": {
+      "$ref": "provenance.schema.json#/$defs/hash"
+    },
+    "fieldProvenance": {
+      "$ref": "provenance.schema.json#/$defs/fieldProvenance"
+    },
+    "stableSpan": {
+      "type": "object",
+      "required": [
+        "span_id",
+        "kind",
+        "sequence",
+        "char_start",
+        "char_end",
+        "text_hash"
+      ],
+      "properties": {
+        "span_id": {
+          "$ref": "#/$defs/id"
+        },
+        "parent_span_id": {
+          "$ref": "#/$defs/id"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "document",
+            "scene_heading",
+            "action",
+            "character_cue",
+            "dialogue",
+            "parenthetical",
+            "transition",
+            "note",
+            "paragraph",
+            "storyboard_row",
+            "prompt_segment"
+          ]
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "char_start": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "char_end": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "line_start": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "line_end": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "text_hash": {
+          "$ref": "#/$defs/hash"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "dialogueBlock": {
+      "type": "object",
+      "required": [
+        "dialogue_block_id",
+        "span_ids",
+        "speaker_text"
+      ],
+      "properties": {
+        "dialogue_block_id": {
+          "$ref": "#/$defs/id"
+        },
+        "span_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "speaker_text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "character_id": {
+          "$ref": "#/$defs/id"
+        },
+        "dialogue_text_hash": {
+          "$ref": "#/$defs/hash"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "characterMention": {
+      "type": "object",
+      "required": [
+        "mention_id",
+        "span_id",
+        "surface_form"
+      ],
+      "properties": {
+        "mention_id": {
+          "$ref": "#/$defs/id"
+        },
+        "span_id": {
+          "$ref": "#/$defs/id"
+        },
+        "surface_form": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "character_id": {
+          "$ref": "#/$defs/id"
+        },
+        "resolution_status": {
+          "type": "string",
+          "enum": [
+            "resolved",
+            "ambiguous",
+            "unresolved"
+          ]
+        }
+      },
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

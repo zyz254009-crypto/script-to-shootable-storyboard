@@ -1,0 +1,317 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/fact-ledger.schema.json",
+  "title": "Immutable Fact Ledger",
+  "description": "记录原剧情事实、锁定状态、允许变换和矛盾关系，防止未授权剧情漂移。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "fact_ledger_id",
+    "job_id",
+    "source_manifest_ids",
+    "facts",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "#/$defs/semver"
+    },
+    "created_at": {
+      "$ref": "#/$defs/dateTime"
+    },
+    "created_by_stage": {
+      "$ref": "#/$defs/stageId"
+    },
+    "source_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "fact_ledger_id": {
+      "$ref": "#/$defs/id"
+    },
+    "job_id": {
+      "$ref": "#/$defs/id"
+    },
+    "source_manifest_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "facts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/fact"
+      },
+      "minItems": 1
+    },
+    "field_provenance": {
+      "$ref": "#/$defs/fieldProvenance"
+    }
+  },
+  "$defs": {
+    "id": {
+      "$ref": "provenance.schema.json#/$defs/artifactId"
+    },
+    "semver": {
+      "$ref": "provenance.schema.json#/$defs/semver"
+    },
+    "dateTime": {
+      "$ref": "provenance.schema.json#/$defs/dateTime"
+    },
+    "stageId": {
+      "$ref": "provenance.schema.json#/$defs/stageId"
+    },
+    "hash": {
+      "$ref": "provenance.schema.json#/$defs/hash"
+    },
+    "fieldProvenance": {
+      "$ref": "provenance.schema.json#/$defs/fieldProvenance"
+    },
+    "sourceSpan": {
+      "$ref": "provenance.schema.json#/$defs/sourceSpan"
+    },
+    "factType": {
+      "type": "string",
+      "enum": [
+        "character_identity",
+        "character_relationship",
+        "character_goal",
+        "event",
+        "event_result",
+        "death_status",
+        "key_evidence",
+        "time_order",
+        "location",
+        "world_rule",
+        "secret",
+        "prop_ownership",
+        "prop_state",
+        "dialogue_meaning",
+        "hook_lock",
+        "other"
+      ]
+    },
+    "allowedTransformation": {
+      "type": "string",
+      "enum": [
+        "verbatim_only",
+        "visualize_without_semantic_change",
+        "compress_without_omission",
+        "reorder_without_causal_change",
+        "omit_if_nonessential",
+        "modify_with_authorization"
+      ]
+    },
+    "canonicalValue": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": [
+              "string",
+              "number",
+              "integer",
+              "boolean",
+              "null"
+            ]
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "number",
+              "integer",
+              "boolean",
+              "null"
+            ]
+          }
+        }
+      ]
+    },
+    "contradiction": {
+      "type": "object",
+      "required": [
+        "contradiction_id",
+        "other_fact_id",
+        "status"
+      ],
+      "properties": {
+        "contradiction_id": {
+          "$ref": "#/$defs/id"
+        },
+        "other_fact_id": {
+          "$ref": "#/$defs/id"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "unresolved",
+            "source_conflict",
+            "authorized_retcon",
+            "resolved"
+          ]
+        },
+        "resolution_note": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "authorization_id": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "fact": {
+      "type": "object",
+      "required": [
+        "fact_id",
+        "fact_type",
+        "canonical_value",
+        "source_refs",
+        "locked",
+        "allowed_transformations",
+        "status",
+        "field_provenance"
+      ],
+      "properties": {
+        "fact_id": {
+          "$ref": "#/$defs/id"
+        },
+        "fact_type": {
+          "$ref": "#/$defs/factType"
+        },
+        "subject_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true
+        },
+        "predicate": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "canonical_value": {
+          "$ref": "#/$defs/canonicalValue"
+        },
+        "source_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sourceSpan"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "locked": {
+          "type": "boolean"
+        },
+        "allowed_transformations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/allowedTransformation"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "contradictions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/contradiction"
+          }
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "active",
+            "disputed",
+            "superseded"
+          ]
+        },
+        "authorization_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true
+        },
+        "field_provenance": {
+          "$ref": "#/$defs/fieldProvenance"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "locked": {
+                "const": true
+              }
+            },
+            "required": [
+              "locked"
+            ]
+          },
+          "then": {
+            "properties": {
+              "allowed_transformations": {
+                "not": {
+                  "contains": {
+                    "const": "modify_with_authorization"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "allowed_transformations": {
+                "contains": {
+                  "const": "modify_with_authorization"
+                }
+              }
+            },
+            "required": [
+              "allowed_transformations"
+            ]
+          },
+          "then": {
+            "required": [
+              "authorization_ids"
+            ],
+            "properties": {
+              "authorization_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

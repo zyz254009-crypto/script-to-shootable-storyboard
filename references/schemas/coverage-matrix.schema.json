@@ -1,0 +1,293 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/coverage-matrix.schema.json",
+  "title": "Coverage Matrix",
+  "description": "把关键行动、信息、反应、声音和保险素材定义为可剪需求，而不是 Shot 的父子目录。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "coverage_matrix_id",
+    "job_id",
+    "scene_id",
+    "blocking_plan_id",
+    "coverage_needs",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "#/$defs/semver"
+    },
+    "created_at": {
+      "$ref": "#/$defs/dateTime"
+    },
+    "created_by_stage": {
+      "$ref": "#/$defs/stageId"
+    },
+    "source_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "coverage_matrix_id": {
+      "$ref": "#/$defs/id"
+    },
+    "job_id": {
+      "$ref": "#/$defs/id"
+    },
+    "scene_id": {
+      "$ref": "#/$defs/id"
+    },
+    "blocking_plan_id": {
+      "$ref": "#/$defs/id"
+    },
+    "coverage_needs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/coverageNeed"
+      },
+      "minItems": 1
+    },
+    "field_provenance": {
+      "$ref": "#/$defs/fieldProvenance"
+    }
+  },
+  "$defs": {
+    "id": {
+      "$ref": "provenance.schema.json#/$defs/artifactId"
+    },
+    "semver": {
+      "$ref": "provenance.schema.json#/$defs/semver"
+    },
+    "dateTime": {
+      "$ref": "provenance.schema.json#/$defs/dateTime"
+    },
+    "stageId": {
+      "$ref": "provenance.schema.json#/$defs/stageId"
+    },
+    "hash": {
+      "$ref": "provenance.schema.json#/$defs/hash"
+    },
+    "fieldProvenance": {
+      "$ref": "provenance.schema.json#/$defs/fieldProvenance"
+    },
+    "idList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "overlapRange": {
+      "type": "object",
+      "required": [
+        "start_marker_id",
+        "end_marker_id",
+        "repetition_required"
+      ],
+      "properties": {
+        "start_marker_id": {
+          "$ref": "#/$defs/id"
+        },
+        "end_marker_id": {
+          "$ref": "#/$defs/id"
+        },
+        "repetition_required": {
+          "type": "boolean"
+        },
+        "minimum_overlap_seconds": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "reactionCutPoint": {
+      "type": "object",
+      "required": [
+        "cut_point_id",
+        "after_event_id",
+        "reaction_subject_id",
+        "editorial_purpose"
+      ],
+      "properties": {
+        "cut_point_id": {
+          "$ref": "#/$defs/id"
+        },
+        "after_event_id": {
+          "$ref": "#/$defs/id"
+        },
+        "reaction_subject_id": {
+          "$ref": "#/$defs/id"
+        },
+        "editorial_purpose": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "coverageNeed": {
+      "type": "object",
+      "required": [
+        "coverage_id",
+        "beat_ids",
+        "required_information",
+        "coverage_priority",
+        "coverage_role",
+        "candidate_shot_intent_ids",
+        "wild_track_required",
+        "clean_plate_required",
+        "editorial_reason",
+        "fulfillment_status",
+        "field_provenance"
+      ],
+      "properties": {
+        "coverage_id": {
+          "$ref": "#/$defs/id"
+        },
+        "beat_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "required_information": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "coverage_priority": {
+          "type": "string",
+          "enum": [
+            "must_have",
+            "safety",
+            "optional"
+          ]
+        },
+        "coverage_role": {
+          "type": "string",
+          "enum": [
+            "master",
+            "two_shot",
+            "over_shoulder",
+            "single",
+            "reaction",
+            "insert",
+            "transition",
+            "clean_plate",
+            "wild_track",
+            "other"
+          ]
+        },
+        "candidate_shot_intent_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "action_overlap_range": {
+          "$ref": "#/$defs/overlapRange"
+        },
+        "dialogue_overlap_range": {
+          "$ref": "#/$defs/overlapRange"
+        },
+        "reaction_cut_points": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/reactionCutPoint"
+          }
+        },
+        "wild_track_required": {
+          "type": "boolean"
+        },
+        "clean_plate_required": {
+          "type": "boolean"
+        },
+        "editorial_reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "fulfilled_by_shot_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true
+        },
+        "fulfilled_by_timeline_clip_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true
+        },
+        "fulfillment_status": {
+          "type": "string",
+          "enum": [
+            "planned",
+            "shot_or_generated",
+            "asset_accepted",
+            "timeline_assembled",
+            "waived"
+          ]
+        },
+        "waiver_authorization_id": {
+          "$ref": "#/$defs/id"
+        },
+        "field_provenance": {
+          "$ref": "#/$defs/fieldProvenance"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "fulfillment_status": {
+                "const": "waived"
+              }
+            },
+            "required": [
+              "fulfillment_status"
+            ]
+          },
+          "then": {
+            "required": [
+              "waiver_authorization_id"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fulfillment_status": {
+                "const": "timeline_assembled"
+              }
+            },
+            "required": [
+              "fulfillment_status"
+            ]
+          },
+          "then": {
+            "required": [
+              "fulfilled_by_shot_ids",
+              "fulfilled_by_timeline_clip_ids"
+            ],
+            "properties": {
+              "fulfilled_by_shot_ids": {
+                "minItems": 1
+              },
+              "fulfilled_by_timeline_clip_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

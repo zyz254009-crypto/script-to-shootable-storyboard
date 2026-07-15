@@ -1,0 +1,101 @@
+# 项目输入模板
+# 本文件对应 references/schemas/job-spec.schema.json。
+# 替换示例值后再提交；默认 modification/revision 权限必须保持 faithful，除非用户明确授权。
+
+schema_version: 1.0.0
+created_at: "2026-06-25T09:00:00+08:00"
+created_by_stage: task-intake
+source_hash: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+
+# 任务与项目唯一标识。
+job_id: JOB-DEMO-001
+project_id: PROJECT-DEMO-001
+
+# 输入类型：script | scene_draft | synopsis | dialogue_draft |
+# existing_storyboard | seedance_prompt
+input_type: script
+
+# 制作方式：live | seedance | hybrid
+production_mode: seedance
+
+# 修改权限：faithful（忠实转换）| visual（视觉增强）|
+# pacing（节奏优化）| story（剧情改写）
+revision_permission: faithful
+
+# 平台配置。安全区、字幕区和 UI 遮挡区应引用版本化 Profile。
+platform:
+  platform_profile_id: PLATFORM-VERTICAL-DEMO-001
+  target_platform: 短剧竖屏平台
+  delivery_context: vertical_serial_drama
+  safe_zone_id: SAFEZONE-VERTICAL-DEMO-001
+  subtitle_zone_id: SUBZONE-VERTICAL-DEMO-001
+  ui_occlusion_zone_ids:
+    - UIZONE-RIGHT-DEMO-001
+  profile_version: 1.0.0
+
+aspect_ratio: "9:16"
+target_duration_seconds: 60
+episode_duration_seconds: 60
+
+audience:
+  description: 喜欢都市冲突与快速反转的成年短剧观众
+  minimum_age: 18
+  audience_tags:
+    - 都市
+    - 逆袭
+    - 悬念
+
+# 地区使用 ISO 3166-1 alpha-2；语言使用 BCP 47 风格标签。
+regions:
+  - CN
+language: zh-CN
+
+genre:
+  - 都市情感
+  - 逆袭
+genre_profile_ids:
+  - GENRE-URBAN-REVERSAL-001
+
+# 预算等级：micro | low | medium | high | unbounded
+budget_level: low
+budget_limit:
+  amount: 5000
+  currency: CNY
+  tax_included: true
+
+# 声音方式：none | live_recording | generated | hybrid
+audio_generation: generated
+content_rating:
+  system: 项目自定义内容等级
+  rating: 16+
+  content_limits:
+    - 不出现写实血腥
+    - 不出现未成年人危险行为
+
+seedance_model_profile_id: BYTEDANCE-SEEDANCE-2-0-DEMO
+
+# 原子镜头为本 SKILL 的默认生产策略，不代表模型能力上限。
+atomic_shot_policy:
+  mode: atomic_default
+  single_dominant_shot_size: true
+  single_continuous_spacetime: true
+  long_take_requires_exception: true
+
+# 锁定事实不可被自动修复或创意优化改写。
+locked_fact_ids:
+  - FACT-DEMO-IDENTITY-001
+authorization_ids:
+  - AUTH-USER-BRIEF-001
+
+notes:
+  - 首版仅做忠实转换，不新增背叛、死亡或身份反转。
+  - 默认输出分镜表与 Seedance 生成任务表。
+
+# 字段级来源。键必须是 JSON Pointer。
+field_provenance:
+  /input_type:
+    - provenance_id: PROV-JOB-INPUT-001
+      authorization_id: AUTH-USER-BRIEF-001
+      transformation_type: verbatim
+      derived_by_stage: task-intake
+      confidence: 1.0

@@ -1,0 +1,196 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/scene.schema.json",
+  "title": "Scene",
+  "description": "定义连续地点、时间和戏剧情境中的场景，并关联来源、人物、Beat 与后续制作对象。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "scene_id",
+    "job_id",
+    "source_manifest_ids",
+    "source_spans",
+    "sequence_number",
+    "slugline",
+    "location_id",
+    "interior_exterior",
+    "time_of_day",
+    "participant_character_ids",
+    "start_state_summary",
+    "end_state_summary",
+    "dramatic_context",
+    "fact_ids",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "#/$defs/semver"
+    },
+    "created_at": {
+      "$ref": "#/$defs/dateTime"
+    },
+    "created_by_stage": {
+      "$ref": "#/$defs/stageId"
+    },
+    "source_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "scene_id": {
+      "$ref": "#/$defs/id"
+    },
+    "job_id": {
+      "$ref": "#/$defs/id"
+    },
+    "source_manifest_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "source_spans": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/sourceSpan"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "sequence_number": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "episode_id": {
+      "$ref": "#/$defs/id"
+    },
+    "slugline": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "location_id": {
+      "$ref": "#/$defs/id"
+    },
+    "interior_exterior": {
+      "type": "string",
+      "enum": [
+        "interior",
+        "exterior",
+        "interior_exterior",
+        "unspecified"
+      ]
+    },
+    "time_of_day": {
+      "type": "string",
+      "enum": [
+        "dawn",
+        "day",
+        "dusk",
+        "night",
+        "continuous",
+        "unspecified"
+      ]
+    },
+    "story_time": {
+      "type": "string",
+      "maxLength": 300
+    },
+    "participant_character_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "prop_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "beat_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "blocking_plan_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "coverage_matrix_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "camera_setup_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "platform_profile_id": {
+      "$ref": "#/$defs/id"
+    },
+    "start_state_summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000
+    },
+    "end_state_summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000
+    },
+    "dramatic_context": {
+      "type": "object",
+      "required": [
+        "scene_goal",
+        "conflict",
+        "information_change"
+      ],
+      "properties": {
+        "scene_goal": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "conflict": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "information_change": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "hook_contract_ids": {
+          "$ref": "#/$defs/idList"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "fact_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "field_provenance": {
+      "$ref": "#/$defs/fieldProvenance"
+    }
+  },
+  "$defs": {
+    "id": {
+      "$ref": "provenance.schema.json#/$defs/artifactId"
+    },
+    "semver": {
+      "$ref": "provenance.schema.json#/$defs/semver"
+    },
+    "dateTime": {
+      "$ref": "provenance.schema.json#/$defs/dateTime"
+    },
+    "stageId": {
+      "$ref": "provenance.schema.json#/$defs/stageId"
+    },
+    "hash": {
+      "$ref": "provenance.schema.json#/$defs/hash"
+    },
+    "sourceSpan": {
+      "$ref": "provenance.schema.json#/$defs/sourceSpan"
+    },
+    "fieldProvenance": {
+      "$ref": "provenance.schema.json#/$defs/fieldProvenance"
+    },
+    "idList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  },
+  "unevaluatedProperties": false
+}

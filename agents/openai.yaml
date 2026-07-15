@@ -1,0 +1,4 @@
+interface:
+  display_name: "剧本转可拍分镜"
+  short_description: "把剧本或分镜转换为 Seedance 可执行的原子镜头"
+  default_prompt: "使用 $script-to-shootable-storyboard，把这份剧本或已有分镜转换为忠实、可拍、可剪的原子镜头与 Seedance 生成任务。"

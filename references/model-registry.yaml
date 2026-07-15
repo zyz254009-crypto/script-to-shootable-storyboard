@@ -1,0 +1,373 @@
+schema_version: "1.0.0"
+registry_version: "1.0.1"
+registry_verified_date: "2026-06-25"
+registry_owner: "script-to-shootable-storyboard"
+
+evidence_classes:
+  official_claim:
+    description: "由供应商官方页面、官方文档或官方技术报告明确陈述的能力；不表示一般任务稳定成功。"
+  internal_policy:
+    description: "为提高生产稳定性而设置的内部默认值；不得表述为模型上限或官方建议。"
+  empirical_observation:
+    description: "绑定模型构建、入口、地区、账号、参数、样本量和日期的真实生成结果。"
+  unknown:
+    description: "当前证据或运行快照不足；调用方必须保持未知或先做能力探测。"
+
+source_records:
+  - source_id: "seedance-2-official-page"
+    title: "Seedance 2.0"
+    source_type: "official_product_page"
+    publisher: "ByteDance Seed"
+    url: "https://seed.bytedance.com/en/seedance2_0"
+    evidence_class: "official_claim"
+    verified_date: "2026-06-25"
+    fetched_at: "2026-06-25"
+    identity_status: "verified"
+    content_hash: null
+    notes:
+      - "用于确认产品名称、原生音视频生成、多模态参考和公开展示能力。"
+      - "官方展示案例不等于普通任务成功率。"
+
+  - source_id: "seedance-2-technical-report"
+    title: "Seedance 2.0: Advancing Video Generation for World Complexity"
+    source_type: "official_technical_report"
+    publisher: "ByteDance Seed"
+    canonical_identifier: "arXiv:2604.14148v1"
+    url: "https://arxiv.org/abs/2604.14148"
+    evidence_class: "official_claim"
+    verified_date: "2026-06-25"
+    fetched_at: "2026-06-25"
+    identity_status: "verified"
+    content_hash: null
+    notes:
+      - "用于确认4至15秒、480p/720p、图像/视频/音频参考上限、原生音视频、多镜头叙事和报告中陈述的限制。"
+      - "论文中的官方基准与案例仍需独立真实生成回写。"
+
+staleness_policy:
+  rapidly_changing_fields_max_age_days: 30
+  capability_fields_max_age_days: 90
+  rapidly_changing_fields:
+    - "product_entry"
+    - "region_constraints"
+    - "account_constraints"
+    - "request_parameters"
+    - "pricing"
+    - "rate_limits"
+    - "model_build_or_revision"
+  on_stale: "mark_stale_and_require_runtime_snapshot"
+  never_infer_unknown_as_supported: true
+
+models:
+  - model_id: "bytedance-seedance-2.0"
+    display_name: "Seedance 2.0"
+    provider: "ByteDance Seed"
+    profile_version: "1.0.0"
+    profile_status: "verified_with_unknown_operational_fields"
+    verified_date: "2026-06-25"
+    official_source_refs:
+      - "seedance-2-official-page"
+      - "seedance-2-technical-report"
+
+    identity:
+      official_product_name:
+        value: "Seedance 2.0"
+        evidence_class: "official_claim"
+        source_refs:
+          - "seedance-2-official-page"
+          - "seedance-2-technical-report"
+      model_build_or_revision:
+        value: null
+        evidence_class: "unknown"
+        reason: "公开产品名称不足以标识实际服务端构建；必须由运行快照记录。"
+      api_model_identifier:
+        value: null
+        evidence_class: "unknown"
+        reason: "未在本档案核验通用公开API标识。"
+      product_entry:
+        value: null
+        evidence_class: "unknown"
+        reason: "不同地区、产品和账号入口可能不同；项目运行时记录。"
+
+    official_capabilities:
+      output_duration_seconds:
+        minimum: 4
+        maximum: 15
+        evidence_class: "official_claim"
+        source_refs:
+          - "seedance-2-technical-report"
+        caution: "当前版本能力，不是永久规格。"
+
+      output_resolution:
+        declared_values:
+          - "480p"
+          - "720p"
+        evidence_class: "official_claim"
+        source_refs:
+          - "seedance-2-technical-report"
+        exact_pixel_dimensions:
+          value: null
+          evidence_class: "unknown"
+
+      input_modalities:
+        values:
+          - "text"
+          - "image"
+          - "video"
+          - "audio"
+        evidence_class: "official_claim"
+        source_refs:
+          - "seedance-2-official-page"
+          - "seedance-2-technical-report"
+
+      reference_limits:
+        image:
+          maximum_items: 9
+          evidence_class: "official_claim"
+          source_refs:
+            - "seedance-2-technical-report"
+        video:
+          maximum_items: 3
+          total_duration_seconds_maximum: 15
+          evidence_class: "official_claim"
+          source_refs:
+            - "seedance-2-technical-report"
+        audio:
+          maximum_items: 3
+          total_duration_seconds_maximum: 15
+          evidence_class: "official_claim"
+          source_refs:
+            - "seedance-2-technical-report"
+        mixed_reference_budget_interactions:
+          value: null
+          evidence_class: "unknown"
+          reason: "不同产品入口可能还有总上传、格式或组合限制；运行时探测。"
+
+      native_audio_video_generation:
+        supported: true
+        evidence_class: "official_claim"
+        source_refs:
+          - "seedance-2-official-page"
+          - "seedance-2-technical-report"
+        caution: "支持联合生成不表示多人、长对白、任意语言或精确口型稳定。"
+
+      multi_shot_generation:
+        supported: true
+        evidence_class: "official_claim"
+        source_refs:
+          - "seedance-2-official-page"
+          - "seedance-2-technical-report"
+        caution: "不得据此把多镜头任务视为默认稳定路径。"
+
+      multiple_scenes_and_angles:
+        supported: true
+        evidence_class: "official_claim"
+        source_refs:
+          - "seedance-2-technical-report"
+        caution: "任务复杂度、主体数量和连续性仍需逐项目评估。"
+
+      camera_motion_control:
+        supported: true
+        evidence_class: "official_claim"
+        source_refs:
+          - "seedance-2-official-page"
+          - "seedance-2-technical-report"
+        exact_control_interface:
+          value: null
+          evidence_class: "unknown"
+        caution: "能力声明不等于复杂路径、起止构图和主体动作能同时稳定满足。"
+
+      image_reference_roles:
+        supported_roles:
+          - "character_identity"
+          - "environment"
+          - "prop"
+          - "composition"
+        evidence_class: "official_claim"
+        source_refs:
+          - "seedance-2-official-page"
+          - "seedance-2-technical-report"
+        role_binding_syntax:
+          value: null
+          evidence_class: "unknown"
+
+      video_reference_roles:
+        supported_roles:
+          - "motion"
+          - "camera"
+          - "rhythm"
+          - "visual_effect"
+        evidence_class: "official_claim"
+        source_refs:
+          - "seedance-2-official-page"
+          - "seedance-2-technical-report"
+        exact_role_binding_syntax:
+          value: null
+          evidence_class: "unknown"
+
+      audio_reference_roles:
+        supported_roles:
+          - "speech"
+          - "voice_characteristics"
+          - "music"
+          - "rhythm"
+          - "sound_effect"
+        evidence_class: "official_claim"
+        source_refs:
+          - "seedance-2-official-page"
+          - "seedance-2-technical-report"
+        exact_role_binding_syntax:
+          value: null
+          evidence_class: "unknown"
+
+    officially_reported_limitations:
+      - limitation_id: "multi-speaker-lipsync"
+        description: "多人场景可能出现说话人归属、口型或音频同步错误。"
+        evidence_class: "official_claim"
+        source_refs:
+          - "seedance-2-technical-report"
+        production_response: "多人长对白优先拆成单人镜头，或静音生成后使用ADR。"
+
+      - limitation_id: "extended-dialogue-lipsync"
+        description: "较长对白的口型同步仍可能失败。"
+        evidence_class: "official_claim"
+        source_refs:
+          - "seedance-2-technical-report"
+        production_response: "缩短台词、减少说话者，或分离声音生产。"
+
+      - limitation_id: "complex-editing-limit"
+        description: "复杂编辑和多约束任务仍存在限制。"
+        evidence_class: "official_claim"
+        source_refs:
+          - "seedance-2-technical-report"
+        production_response: "默认使用原子镜头；在时间线完成多镜头组装。"
+
+    internal_production_policy:
+      evidence_class: "internal_policy"
+      policy_version: "1.0.0"
+      default_generation_unit: "one_atomic_shot_per_generation_task"
+      preferred_atomic_duration_seconds:
+        minimum: 4
+        maximum: 8
+        note: "稳定性优先的内部建议；不是官方上限。"
+      preferred_primary_subject_count:
+        maximum: 2
+        note: "超过两名可辨识主体时升级风险，不代表模型不支持。"
+      default_camera_policy: "locked_or_one_simple_continuous_move"
+      default_audio_policy:
+        no_dialogue: "native_or_post"
+        single_short_line: "native_allowed_with_fallback"
+        multiple_speakers_or_long_dialogue: "prefer_silent_video_plus_adr"
+      default_multi_shot_policy: "disabled"
+      reference_priority:
+        - "canonical_character"
+        - "current_wardrobe_and_makeup"
+        - "environment_or_first_frame"
+        - "critical_prop"
+        - "motion_or_camera"
+        - "audio"
+      required_fallbacks:
+        - "reduce_simultaneous_subjects"
+        - "shorten_action_chain"
+        - "lock_camera"
+        - "split_atomic_shots"
+        - "separate_audio"
+        - "switch_to_live_action_or_hybrid"
+
+    empirical_observations:
+      status: "not_yet_recorded"
+      evidence_class: "empirical_observation"
+      cohorts: []
+      caution: "在真实多Attempt、统一量表和版本绑定完成前，不填写成功率或稳定性结论。"
+
+    unknown_operational_capabilities:
+      evidence_class: "unknown"
+      fields:
+        - field: "supported_aspect_ratios"
+          reason: "未在本次核验中确认所有入口的完整枚举。"
+        - field: "exact_frame_rates"
+          reason: "未核验全部入口和分辨率组合。"
+        - field: "exact_image_video_audio_file_formats"
+          reason: "不同入口可能不同。"
+        - field: "maximum_upload_size"
+          reason: "不同入口可能不同。"
+        - field: "first_frame_control_parameter"
+          reason: "产品可能通过参考图实现，但本档案未核验统一参数。"
+        - field: "last_frame_control_parameter"
+          reason: "未核验统一可用的尾帧控制接口。"
+        - field: "negative_prompt_parameter"
+          reason: "不得假定存在独立API字段。"
+        - field: "seed_control"
+          reason: "未核验通用可复现随机种子接口。"
+        - field: "deterministic_replay"
+          reason: "供应商生成结果默认按统计复现处理。"
+        - field: "pricing"
+          reason: "价格依地区、入口、账号和日期变化，项目运行时核验。"
+        - field: "rate_limits"
+          reason: "依账号和入口变化。"
+        - field: "region_constraints"
+          reason: "项目运行时记录。"
+        - field: "account_constraints"
+          reason: "项目运行时记录。"
+        - field: "content_policy_limits"
+          reason: "按地区和产品入口加载最新政策。"
+
+    runtime_snapshot_requirements:
+      required: true
+      fields:
+        - "registry_version"
+        - "model_profile_version"
+        - "model_profile_hash"
+        - "provider_entry"
+        - "region"
+        - "account_capabilities"
+        - "model_build_or_revision"
+        - "request_parameters"
+        - "seed_if_available"
+        - "prompt_hash"
+        - "reference_asset_ids"
+        - "reference_asset_hashes"
+        - "submitted_at"
+        - "actual_cost"
+        - "currency"
+        - "provider_status"
+        - "failure_codes"
+        - "result_asset_hashes"
+        - "input_package_hash"
+        - "skill_package_hash"
+        - "schema_bundle_hash"
+        - "rule_registry_hash"
+        - "runtime_dependencies"
+        - "dependency_lock_hash"
+        - "operating_environment"
+        - "reproduction_mode"
+      default_reproduction_mode: "statistical_reproduction"
+
+    task_validation_rules:
+      - rule_id: "MODEL-001"
+        severity: "blocker"
+        condition: "requested_duration_seconds outside official_capabilities.output_duration_seconds"
+        action: "reject_task"
+      - rule_id: "MODEL-002"
+        severity: "blocker"
+        condition: "reference count or duration exceeds verified limit"
+        action: "reject_task"
+      - rule_id: "MODEL-003"
+        severity: "blocker"
+        condition: "task requires capability marked unsupported"
+        action: "reject_task"
+      - rule_id: "MODEL-004"
+        severity: "error"
+        condition: "task requires capability marked unknown without runtime capability snapshot"
+        action: "require_probe_or_fallback"
+      - rule_id: "MODEL-005"
+        severity: "warning"
+        condition: "multi_shot task requested while internal default_multi_shot_policy is disabled"
+        action: "require_explicit_exception_and_atomic_fallback"
+      - rule_id: "MODEL-006"
+        severity: "warning"
+        condition: "multiple speakers or extended dialogue requested"
+        action: "require_lipsync_fallback"
+      - rule_id: "MODEL-007"
+        severity: "error"
+        condition: "profile or rapidly changing operational fields are stale"
+        action: "refresh_runtime_snapshot"

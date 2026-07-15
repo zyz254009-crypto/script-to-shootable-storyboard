@@ -1,0 +1,540 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/media-asset.schema.json",
+  "title": "Media Asset",
+  "description": "记录真人拍摄、模型生成、录音、素材库或合成产生的原始媒体文件、内部边界、可用区间、技术属性、质量和权利状态。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "asset_id",
+    "job_id",
+    "origin_type",
+    "origin_id",
+    "media_kind",
+    "file_hash",
+    "storage_locator",
+    "duration_seconds",
+    "internal_shot_boundaries",
+    "usable_ranges",
+    "quality_scores",
+    "rights_status",
+    "selection_eligibility",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "#/$defs/semver"
+    },
+    "created_at": {
+      "$ref": "#/$defs/dateTime"
+    },
+    "created_by_stage": {
+      "$ref": "#/$defs/stageId"
+    },
+    "source_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "asset_id": {
+      "$ref": "#/$defs/id"
+    },
+    "job_id": {
+      "$ref": "#/$defs/id"
+    },
+    "origin_type": {
+      "type": "string",
+      "enum": [
+        "take",
+        "generation_attempt",
+        "audio_production_attempt",
+        "composite",
+        "library",
+        "user_supplied"
+      ]
+    },
+    "origin_id": {
+      "$ref": "#/$defs/id"
+    },
+    "media_kind": {
+      "type": "string",
+      "enum": [
+        "video",
+        "audio",
+        "image",
+        "mask",
+        "tracking_data",
+        "subtitle",
+        "metadata",
+        "project_file"
+      ]
+    },
+    "source_shot_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "source_audio_event_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "file_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "storage_locator": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000
+    },
+    "mime_type": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9!#$&^_.+-]+/[A-Za-z0-9!#$&^_.+-]+$"
+    },
+    "duration_seconds": {
+      "type": "number",
+      "minimum": 0
+    },
+    "frame_rate": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "resolution": {
+      "$ref": "#/$defs/resolution"
+    },
+    "pixel_aspect_ratio": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]{0,3}:[1-9][0-9]{0,3}$"
+    },
+    "color_space": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "transfer_function": {
+      "type": "string",
+      "maxLength": 100
+    },
+    "audio_format": {
+      "$ref": "#/$defs/audioFormat"
+    },
+    "internal_shot_boundaries": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/internalBoundary"
+      }
+    },
+    "usable_ranges": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/usableRange"
+      }
+    },
+    "quality_scores": {
+      "$ref": "#/$defs/qualityScores"
+    },
+    "rights_status": {
+      "$ref": "#/$defs/rightsStatus"
+    },
+    "selection_eligibility": {
+      "type": "string",
+      "enum": [
+        "eligible",
+        "eligible_after_repair",
+        "reference_only",
+        "blocked"
+      ]
+    },
+    "blocking_issue_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "timeline_clip_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "field_provenance": {
+      "$ref": "#/$defs/fieldProvenance"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "media_kind": {
+            "const": "video"
+          }
+        },
+        "required": [
+          "media_kind"
+        ]
+      },
+      "then": {
+        "required": [
+          "frame_rate",
+          "resolution",
+          "color_space"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "media_kind": {
+            "const": "image"
+          }
+        },
+        "required": [
+          "media_kind"
+        ]
+      },
+      "then": {
+        "required": [
+          "resolution",
+          "color_space"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "media_kind": {
+            "const": "audio"
+          }
+        },
+        "required": [
+          "media_kind"
+        ]
+      },
+      "then": {
+        "required": [
+          "audio_format"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "origin_type": {
+            "const": "composite"
+          }
+        },
+        "required": [
+          "origin_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "origin_id": {
+            "$ref": "#/$defs/id"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "selection_eligibility": {
+            "const": "blocked"
+          }
+        },
+        "required": [
+          "selection_eligibility"
+        ]
+      },
+      "then": {
+        "required": [
+          "blocking_issue_ids"
+        ],
+        "properties": {
+          "blocking_issue_ids": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "id": {
+      "$ref": "provenance.schema.json#/$defs/artifactId"
+    },
+    "semver": {
+      "$ref": "provenance.schema.json#/$defs/semver"
+    },
+    "dateTime": {
+      "$ref": "provenance.schema.json#/$defs/dateTime"
+    },
+    "stageId": {
+      "$ref": "provenance.schema.json#/$defs/stageId"
+    },
+    "hash": {
+      "$ref": "provenance.schema.json#/$defs/hash"
+    },
+    "fieldProvenance": {
+      "$ref": "provenance.schema.json#/$defs/fieldProvenance"
+    },
+    "idList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "uniqueItems": true
+    },
+    "resolution": {
+      "type": "object",
+      "required": [
+        "width",
+        "height"
+      ],
+      "properties": {
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "audioFormat": {
+      "type": "object",
+      "required": [
+        "codec",
+        "sample_rate_hz",
+        "bit_depth",
+        "channels"
+      ],
+      "properties": {
+        "codec": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "sample_rate_hz": {
+          "type": "integer",
+          "minimum": 8000
+        },
+        "bit_depth": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "channels": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "channel_layout": {
+          "type": "string",
+          "maxLength": 100
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "internalBoundary": {
+      "type": "object",
+      "required": [
+        "boundary_id",
+        "at_seconds",
+        "boundary_type",
+        "confidence"
+      ],
+      "properties": {
+        "boundary_id": {
+          "$ref": "#/$defs/id"
+        },
+        "at_seconds": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "boundary_type": {
+          "type": "string",
+          "enum": [
+            "intended_cut",
+            "unintended_cut",
+            "transition",
+            "identity_discontinuity",
+            "composition_discontinuity",
+            "audio_discontinuity",
+            "unknown"
+          ]
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "shot_id_before": {
+          "$ref": "#/$defs/id"
+        },
+        "shot_id_after": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "usableRange": {
+      "type": "object",
+      "required": [
+        "range_id",
+        "source_in_seconds",
+        "source_out_seconds",
+        "head_handle_seconds",
+        "tail_handle_seconds",
+        "usable_for_shot_ids",
+        "status"
+      ],
+      "properties": {
+        "range_id": {
+          "$ref": "#/$defs/id"
+        },
+        "source_in_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "source_out_seconds": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "head_handle_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "tail_handle_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "usable_for_shot_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "usable_for_audio_event_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "clean",
+            "repairable",
+            "reference_only",
+            "unusable"
+          ]
+        },
+        "repair_requirements": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "qualityScores": {
+      "type": "object",
+      "required": [
+        "technical",
+        "visual_or_audio",
+        "continuity",
+        "source_alignment",
+        "overall",
+        "rubric_version"
+      ],
+      "properties": {
+        "technical": {
+          "$ref": "#/$defs/score"
+        },
+        "visual_or_audio": {
+          "$ref": "#/$defs/score"
+        },
+        "continuity": {
+          "$ref": "#/$defs/score"
+        },
+        "source_alignment": {
+          "$ref": "#/$defs/score"
+        },
+        "overall": {
+          "$ref": "#/$defs/score"
+        },
+        "rubric_version": {
+          "$ref": "#/$defs/semver"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "rightsStatus": {
+      "type": "object",
+      "required": [
+        "status",
+        "rights_record_ids",
+        "commercial_use",
+        "derivative_use",
+        "ai_use",
+        "territory_status",
+        "expiry_status"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "cleared",
+            "conditional",
+            "pending",
+            "blocked"
+          ]
+        },
+        "rights_record_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "commercial_use": {
+          "type": "string",
+          "enum": [
+            "allowed",
+            "conditional",
+            "forbidden",
+            "unknown"
+          ]
+        },
+        "derivative_use": {
+          "type": "string",
+          "enum": [
+            "allowed",
+            "conditional",
+            "forbidden",
+            "unknown"
+          ]
+        },
+        "ai_use": {
+          "type": "string",
+          "enum": [
+            "allowed",
+            "conditional",
+            "forbidden",
+            "unknown"
+          ]
+        },
+        "territory_status": {
+          "type": "string",
+          "enum": [
+            "cleared",
+            "restricted",
+            "unknown"
+          ]
+        },
+        "expiry_status": {
+          "type": "string",
+          "enum": [
+            "valid",
+            "expired",
+            "unknown"
+          ]
+        },
+        "attribution_required": {
+          "type": "boolean"
+        }
+      },
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

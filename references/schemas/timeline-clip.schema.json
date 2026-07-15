@@ -1,0 +1,380 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/timeline-clip.schema.json",
+  "title": "Timeline Clip",
+  "description": "记录一个 Media Asset 在成片时间线上的一次使用，包括源区间、时间线区间、Handles、速度、轨道、转场和声音链接。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "timeline_clip_id",
+    "job_id",
+    "timeline_id",
+    "asset_id",
+    "track",
+    "shot_ids",
+    "source_in_seconds",
+    "source_out_seconds",
+    "timeline_in_seconds",
+    "timeline_out_seconds",
+    "head_handle_seconds",
+    "tail_handle_seconds",
+    "speed",
+    "audio_links",
+    "transition_in",
+    "transition_out",
+    "internal_boundary_policy",
+    "status",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "#/$defs/semver"
+    },
+    "created_at": {
+      "$ref": "#/$defs/dateTime"
+    },
+    "created_by_stage": {
+      "$ref": "#/$defs/stageId"
+    },
+    "source_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "timeline_clip_id": {
+      "$ref": "#/$defs/id"
+    },
+    "job_id": {
+      "$ref": "#/$defs/id"
+    },
+    "timeline_id": {
+      "$ref": "#/$defs/id"
+    },
+    "asset_id": {
+      "$ref": "#/$defs/id"
+    },
+    "asset_usable_range_id": {
+      "$ref": "#/$defs/id"
+    },
+    "track": {
+      "$ref": "#/$defs/track"
+    },
+    "shot_ids": {
+      "$ref": "#/$defs/nonEmptyIdList"
+    },
+    "audio_event_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "source_in_seconds": {
+      "type": "number",
+      "minimum": 0
+    },
+    "source_out_seconds": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "timeline_in_seconds": {
+      "type": "number",
+      "minimum": 0
+    },
+    "timeline_out_seconds": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "head_handle_seconds": {
+      "type": "number",
+      "minimum": 0
+    },
+    "tail_handle_seconds": {
+      "type": "number",
+      "minimum": 0
+    },
+    "speed": {
+      "type": "object",
+      "required": [
+        "rate",
+        "preserve_pitch"
+      ],
+      "properties": {
+        "rate": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "preserve_pitch": {
+          "type": "boolean"
+        },
+        "ramp_points": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/speedPoint"
+          }
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "audio_links": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/audioLink"
+      }
+    },
+    "transition_in": {
+      "$ref": "#/$defs/transition"
+    },
+    "transition_out": {
+      "$ref": "#/$defs/transition"
+    },
+    "internal_boundary_policy": {
+      "type": "object",
+      "required": [
+        "allowed",
+        "used_boundary_ids"
+      ],
+      "properties": {
+        "allowed": {
+          "type": "boolean"
+        },
+        "used_boundary_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "reason": {
+          "type": "string",
+          "maxLength": 1000
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "composite_recipe_id": {
+      "$ref": "#/$defs/id"
+    },
+    "layer_index": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "planned",
+        "assembled",
+        "approved",
+        "rejected",
+        "offline"
+      ]
+    },
+    "validation_issue_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "field_provenance": {
+      "$ref": "#/$defs/fieldProvenance"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "track": {
+            "properties": {
+              "track_type": {
+                "const": "audio"
+              }
+            },
+            "required": [
+              "track_type"
+            ]
+          }
+        },
+        "required": [
+          "track"
+        ]
+      },
+      "then": {
+        "required": [
+          "audio_event_ids"
+        ],
+        "properties": {
+          "audio_event_ids": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "rejected"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "validation_issue_ids"
+        ],
+        "properties": {
+          "validation_issue_ids": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "id": {
+      "$ref": "provenance.schema.json#/$defs/artifactId"
+    },
+    "semver": {
+      "$ref": "provenance.schema.json#/$defs/semver"
+    },
+    "dateTime": {
+      "$ref": "provenance.schema.json#/$defs/dateTime"
+    },
+    "stageId": {
+      "$ref": "provenance.schema.json#/$defs/stageId"
+    },
+    "hash": {
+      "$ref": "provenance.schema.json#/$defs/hash"
+    },
+    "fieldProvenance": {
+      "$ref": "provenance.schema.json#/$defs/fieldProvenance"
+    },
+    "idList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "uniqueItems": true
+    },
+    "nonEmptyIdList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "track": {
+      "type": "object",
+      "required": [
+        "track_id",
+        "track_type",
+        "index"
+      ],
+      "properties": {
+        "track_id": {
+          "$ref": "#/$defs/id"
+        },
+        "track_type": {
+          "type": "string",
+          "enum": [
+            "video",
+            "audio",
+            "subtitle",
+            "graphics",
+            "metadata"
+          ]
+        },
+        "index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "role": {
+          "type": "string",
+          "maxLength": 100
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "speedPoint": {
+      "type": "object",
+      "required": [
+        "timeline_offset_seconds",
+        "rate"
+      ],
+      "properties": {
+        "timeline_offset_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "rate": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "audioLink": {
+      "type": "object",
+      "required": [
+        "linked_timeline_clip_id",
+        "relationship",
+        "sync_offset_seconds"
+      ],
+      "properties": {
+        "linked_timeline_clip_id": {
+          "$ref": "#/$defs/id"
+        },
+        "audio_event_id": {
+          "$ref": "#/$defs/id"
+        },
+        "relationship": {
+          "type": "string",
+          "enum": [
+            "linked_sync",
+            "j_cut",
+            "l_cut",
+            "voice_over",
+            "music",
+            "ambience",
+            "foley",
+            "wild_track",
+            "other"
+          ]
+        },
+        "sync_offset_seconds": {
+          "type": "number"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "transition": {
+      "type": "object",
+      "required": [
+        "type",
+        "duration_seconds"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "cut",
+            "dissolve",
+            "fade",
+            "wipe",
+            "match_action",
+            "match_audio",
+            "occlusion",
+            "custom",
+            "none"
+          ]
+        },
+        "duration_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "related_clip_id": {
+          "$ref": "#/$defs/id"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 500
+        }
+      },
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

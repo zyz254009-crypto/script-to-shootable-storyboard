@@ -1,0 +1,104 @@
+{
+  "schema_version": "v1",
+  "project_id": "project-demo-invalid",
+  "job_spec": {
+    "job_id": "job-demo-invalid",
+    "project_id": "project-demo-invalid",
+    "revision_permission": "story",
+    "production_mode": "seedance",
+    "authorization_ids": []
+  },
+  "fact_ledger": {
+    "fact_ledger_id": "facts-demo-invalid",
+    "facts": [
+      {
+        "fact_id": "fact-locked-identity",
+        "fact_type": "character_identity",
+        "canonical_value": "Lin Xia is the founder.",
+        "locked": true,
+        "allowed_transformations": [
+          "visualize_without_semantic_change",
+          "modify_with_authorization"
+        ],
+        "status": "active"
+      }
+    ]
+  },
+  "rights_manifest": {
+    "records": [
+      {
+        "rights_subject_id": "rights-voice-clone",
+        "verification_status": "pending"
+      }
+    ]
+  },
+  "generation_tasks": [
+    {
+      "generation_task_id": "generation-invalid-001",
+      "duration_seconds": 18,
+      "risk_band": "high"
+    }
+  ],
+  "cost_inputs": {
+    "currency": "CNY",
+    "line_items": [
+      {
+        "line_item_id": "invalid-negative-attempts",
+        "category": "ai_generation",
+        "unit_price": 12,
+        "quantity_distribution": {
+          "low": 1,
+          "expected": -2,
+          "high_failure": 8
+        }
+      }
+    ]
+  },
+  "quality_report": {
+    "report_type": "quality-report",
+    "issues": [
+      {
+        "issue_id": "issue-safe-duration",
+        "rule_id": "SEEDANCE-DURATION-001",
+        "severity": "error",
+        "message": "Generation duration exceeds the verified profile.",
+        "artifact_id": "generation-invalid-001",
+        "field_path": "/generation_tasks/0/duration_seconds",
+        "suggested_value": 8,
+        "autofix_allowed": true
+      },
+      {
+        "issue_id": "issue-forbidden-fact",
+        "rule_id": "FIDELITY-LOCKED-001",
+        "severity": "blocker",
+        "message": "A proposed repair attempts to alter a locked fact.",
+        "artifact_id": "fact-locked-identity",
+        "field_path": "/fact_ledger/facts/0/canonical_value",
+        "suggested_value": "Lin Xia is the assistant.",
+        "autofix_allowed": true
+      },
+      {
+        "issue_id": "issue-forbidden-rights",
+        "rule_id": "RIGHTS-001",
+        "severity": "blocker",
+        "message": "Rights verification is pending.",
+        "artifact_id": "rights-voice-clone",
+        "field_path": "/rights_manifest/records/0/verification_status",
+        "suggested_value": "verified",
+        "autofix_allowed": true
+      },
+      {
+        "issue_id": "issue-manual-permission",
+        "rule_id": "AUTHORIZATION-001",
+        "severity": "blocker",
+        "message": "Story rewriting has no authorization.",
+        "artifact_id": "job-demo-invalid",
+        "field_path": "/job_spec/authorization_ids",
+        "suggested_value": [
+          "authorization-invented"
+        ],
+        "autofix_allowed": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,293 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/semantic-review-run.schema.json",
+  "title": "Semantic Review Run",
+  "description": "记录剧情保真、抽象语言、钩子、可拍性、提示词一致性等语义审核的模型、参数、盲化、输入输出哈希、量表、证据、评分和人工裁决。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "semantic_review_run_id",
+    "job_id",
+    "review_type",
+    "rubric",
+    "reviewer",
+    "blindness",
+    "input_artifacts",
+    "prompt_hash",
+    "started_at",
+    "status",
+    "findings",
+    "scores",
+    "verdict",
+    "bias_controls",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": { "$ref": "#/$defs/semver" },
+    "created_at": { "$ref": "#/$defs/dateTime" },
+    "created_by_stage": { "$ref": "#/$defs/stageId" },
+    "source_hash": { "$ref": "#/$defs/hash" },
+    "semantic_review_run_id": { "$ref": "#/$defs/id" },
+    "job_id": { "$ref": "#/$defs/id" },
+    "review_type": {
+      "type": "string",
+      "enum": [
+        "plot_fidelity",
+        "abstract_language",
+        "hook_quality",
+        "shootability",
+        "prompt_alignment",
+        "continuity",
+        "dialogue",
+        "format",
+        "character_consistency",
+        "rhythm",
+        "other"
+      ]
+    },
+    "rubric": {
+      "type": "object",
+      "required": ["rubric_id", "rubric_version", "rubric_hash", "criteria"],
+      "properties": {
+        "rubric_id": { "$ref": "#/$defs/id" },
+        "rubric_version": { "$ref": "#/$defs/semver" },
+        "rubric_hash": { "$ref": "#/$defs/hash" },
+        "criteria": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["criterion_id", "name", "weight", "minimum", "maximum", "anchors"],
+            "properties": {
+              "criterion_id": { "$ref": "#/$defs/id" },
+              "name": { "type": "string", "minLength": 1, "maxLength": 200 },
+              "weight": { "type": "number", "exclusiveMinimum": 0 },
+              "minimum": { "type": "number" },
+              "maximum": { "type": "number" },
+              "anchors": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["score", "description"],
+                  "properties": {
+                    "score": { "type": "number" },
+                    "description": { "type": "string", "minLength": 1, "maxLength": 500 }
+                  },
+                  "unevaluatedProperties": false
+                },
+                "minItems": 2
+              }
+            },
+            "unevaluatedProperties": false
+          },
+          "minItems": 1
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "reviewer": {
+      "type": "object",
+      "required": [
+        "reviewer_type",
+        "reviewer_id",
+        "model_profile_id",
+        "model_build",
+        "provider_entry",
+        "region",
+        "parameters",
+        "parameters_hash"
+      ],
+      "properties": {
+        "reviewer_type": { "type": "string", "enum": ["model", "human", "hybrid"] },
+        "reviewer_id": { "$ref": "#/$defs/id" },
+        "model_profile_id": { "$ref": "#/$defs/id" },
+        "model_build": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "provider_entry": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "region": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/jsonValue" }
+        },
+        "parameters_hash": { "$ref": "#/$defs/hash" }
+      },
+      "unevaluatedProperties": false
+    },
+    "blindness": {
+      "type": "object",
+      "required": [
+        "blind_to_expected_answer",
+        "blind_to_variant_identity",
+        "blind_to_prior_defects",
+        "allowed_context_manifest_hash",
+        "unauthorized_context_detected"
+      ],
+      "properties": {
+        "blind_to_expected_answer": { "type": "boolean" },
+        "blind_to_variant_identity": { "type": "boolean" },
+        "blind_to_prior_defects": { "type": "boolean" },
+        "allowed_context_manifest_hash": { "$ref": "#/$defs/hash" },
+        "unauthorized_context_detected": { "type": "boolean" }
+      },
+      "unevaluatedProperties": false
+    },
+    "input_artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["artifact_id", "artifact_type", "artifact_hash"],
+        "properties": {
+          "artifact_id": { "$ref": "#/$defs/id" },
+          "artifact_type": { "type": "string", "minLength": 1, "maxLength": 120 },
+          "artifact_hash": { "$ref": "#/$defs/hash" }
+        },
+        "unevaluatedProperties": false
+      },
+      "minItems": 1
+    },
+    "prompt_hash": { "$ref": "#/$defs/hash" },
+    "started_at": { "$ref": "#/$defs/dateTime" },
+    "completed_at": { "$ref": "#/$defs/dateTime" },
+    "status": { "type": "string", "enum": ["planned", "running", "completed", "failed", "invalidated"] },
+    "findings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/finding" }
+    },
+    "scores": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["criterion_id", "score", "evidence_finding_ids", "confidence"],
+        "properties": {
+          "criterion_id": { "$ref": "#/$defs/id" },
+          "score": { "type": "number" },
+          "evidence_finding_ids": { "$ref": "#/$defs/idList" },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+        },
+        "unevaluatedProperties": false
+      }
+    },
+    "overall_score": { "type": "number" },
+    "verdict": {
+      "type": "string",
+      "enum": ["pass", "pass_with_warnings", "manual_review", "fail", "invalid"]
+    },
+    "bias_controls": {
+      "type": "object",
+      "required": ["position_randomized", "length_controlled", "variant_labels_masked", "order_seed"],
+      "properties": {
+        "position_randomized": { "type": "boolean" },
+        "length_controlled": { "type": "boolean" },
+        "variant_labels_masked": { "type": "boolean" },
+        "order_seed": {
+          "oneOf": [
+            { "type": "integer" },
+            { "type": "string", "minLength": 1, "maxLength": 200 }
+          ]
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "human_adjudication": {
+      "type": "object",
+      "required": ["required", "status"],
+      "properties": {
+        "required": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["not_required", "pending", "completed"] },
+        "adjudicator_id": { "$ref": "#/$defs/id" },
+        "decision": { "type": "string", "enum": ["uphold", "modify", "reject_review"] },
+        "decided_at": { "$ref": "#/$defs/dateTime" },
+        "notes": { "type": "string", "maxLength": 1000 }
+      },
+      "unevaluatedProperties": false
+    },
+    "output_hash": { "$ref": "#/$defs/hash" },
+    "run_snapshot_id": { "$ref": "#/$defs/id" },
+    "field_provenance": { "$ref": "#/$defs/fieldProvenance" }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "status": { "const": "completed" } },
+        "required": ["status"]
+      },
+      "then": {
+        "required": ["completed_at", "overall_score", "output_hash", "run_snapshot_id"]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "blindness": {
+            "properties": { "unauthorized_context_detected": { "const": true } },
+            "required": ["unauthorized_context_detected"]
+          }
+        },
+        "required": ["blindness"]
+      },
+      "then": {
+        "properties": {
+          "status": { "const": "invalidated" },
+          "verdict": { "const": "invalid" }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "id": { "$ref": "provenance.schema.json#/$defs/artifactId" },
+    "semver": { "$ref": "provenance.schema.json#/$defs/semver" },
+    "dateTime": { "$ref": "provenance.schema.json#/$defs/dateTime" },
+    "stageId": { "$ref": "provenance.schema.json#/$defs/stageId" },
+    "hash": { "$ref": "provenance.schema.json#/$defs/hash" },
+    "jsonPointer": { "$ref": "provenance.schema.json#/$defs/jsonPointer" },
+    "fieldProvenance": { "$ref": "provenance.schema.json#/$defs/fieldProvenance" },
+    "idList": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/id" },
+      "uniqueItems": true
+    },
+    "jsonValue": {
+      "oneOf": [
+        { "type": ["string", "number", "integer", "boolean", "null"] },
+        { "type": "array", "items": { "$ref": "#/$defs/jsonValue" } },
+        { "type": "object", "additionalProperties": { "$ref": "#/$defs/jsonValue" } }
+      ]
+    },
+    "finding": {
+      "type": "object",
+      "required": [
+        "finding_id",
+        "criterion_id",
+        "artifact_id",
+        "location",
+        "severity",
+        "claim",
+        "evidence",
+        "confidence",
+        "requires_human_review"
+      ],
+      "properties": {
+        "finding_id": { "$ref": "#/$defs/id" },
+        "criterion_id": { "$ref": "#/$defs/id" },
+        "artifact_id": { "$ref": "#/$defs/id" },
+        "location": { "$ref": "#/$defs/jsonPointer" },
+        "severity": {
+          "type": "string",
+          "enum": ["blocker", "critical", "error", "warning", "info", "suggestion"]
+        },
+        "claim": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "maxLength": 1000 },
+          "minItems": 1
+        },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "requires_human_review": { "type": "boolean" },
+        "suggested_action": { "type": "string", "maxLength": 1000 }
+      },
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

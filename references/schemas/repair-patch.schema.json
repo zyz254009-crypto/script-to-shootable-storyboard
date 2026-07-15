@@ -1,0 +1,348 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/repair-patch.schema.json",
+  "title": "Restricted RFC 6902 Repair Patch",
+  "description": "定义只生成、不默认应用的受限 RFC 6902 补丁；用严格 JSON Pointer 表示实际路径，用独立策略模式匹配允许和禁止路径，并保护剧情事实、授权、权利、安全和合规状态。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "patch_id",
+    "job_id",
+    "target_artifact_id",
+    "target_artifact_type",
+    "base_artifact_hash",
+    "base_schema_version",
+    "authorization_policy_version",
+    "repair_round",
+    "allowed_path_patterns",
+    "forbidden_path_patterns",
+    "protected_domains",
+    "preconditions",
+    "operations",
+    "policy_evaluations",
+    "invariants",
+    "risk",
+    "application_policy",
+    "approval",
+    "status",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": { "$ref": "#/$defs/semver" },
+    "created_at": { "$ref": "#/$defs/dateTime" },
+    "created_by_stage": { "$ref": "#/$defs/stageId" },
+    "source_hash": { "$ref": "#/$defs/hash" },
+    "patch_id": { "$ref": "#/$defs/id" },
+    "job_id": { "$ref": "#/$defs/id" },
+    "target_artifact_id": { "$ref": "#/$defs/id" },
+    "target_artifact_type": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "base_artifact_hash": { "$ref": "#/$defs/hash" },
+    "base_schema_version": { "$ref": "#/$defs/semver" },
+    "target_schema_version": { "$ref": "#/$defs/semver" },
+    "authorization_policy_version": { "$ref": "#/$defs/semver" },
+    "authorization_ids": { "$ref": "#/$defs/idList" },
+    "repair_round": { "type": "integer", "minimum": 1, "maximum": 3 },
+    "allowed_path_patterns": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/pathPattern" },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "forbidden_path_patterns": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/pathPattern" },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "protected_domains": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "locked_facts",
+          "story_outcomes",
+          "character_identity",
+          "authorization",
+          "rights",
+          "consent",
+          "privacy",
+          "safety",
+          "compliance",
+          "source_provenance"
+        ]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "preconditions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/precondition" },
+      "minItems": 1
+    },
+    "operations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/operation" },
+      "minItems": 1
+    },
+    "policy_evaluations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/policyEvaluation" },
+      "minItems": 1
+    },
+    "invariants": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/invariant" },
+      "minItems": 1
+    },
+    "risk": {
+      "type": "object",
+      "required": ["level", "touches_protected_domain", "changes_story_fact", "introduces_new_information"],
+      "properties": {
+        "level": { "type": "string", "enum": ["low", "medium", "high", "prohibited"] },
+        "touches_protected_domain": { "type": "boolean" },
+        "changes_story_fact": { "type": "boolean" },
+        "introduces_new_information": { "type": "boolean" },
+        "reasons": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "maxLength": 500 }
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "application_policy": {
+      "type": "object",
+      "required": [
+        "apply_mode",
+        "atomic_application",
+        "rollback_on_failure",
+        "require_base_hash_match",
+        "require_all_tests_pass",
+        "signature_required"
+      ],
+      "properties": {
+        "apply_mode": { "type": "string", "enum": ["proposal_only", "manual_apply", "automatic_apply"] },
+        "atomic_application": { "const": true },
+        "rollback_on_failure": { "const": true },
+        "require_base_hash_match": { "const": true },
+        "require_all_tests_pass": { "const": true },
+        "signature_required": { "type": "boolean" },
+        "backup_artifact_hash": { "$ref": "#/$defs/hash" }
+      },
+      "unevaluatedProperties": false
+    },
+    "approval": {
+      "type": "object",
+      "required": ["status", "required_roles", "approval_policy_version"],
+      "properties": {
+        "status": { "type": "string", "enum": ["not_required", "pending", "approved", "rejected", "expired"] },
+        "required_roles": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "maxLength": 100 },
+          "uniqueItems": true
+        },
+        "approval_policy_version": { "$ref": "#/$defs/semver" },
+        "approvals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["approver_id", "role", "decision", "decided_at", "signature"],
+            "properties": {
+              "approver_id": { "$ref": "#/$defs/id" },
+              "role": { "type": "string", "minLength": 1, "maxLength": 100 },
+              "decision": { "type": "string", "enum": ["approved", "rejected"] },
+              "decided_at": { "$ref": "#/$defs/dateTime" },
+              "signature": { "type": "string", "minLength": 1, "maxLength": 1000 }
+            },
+            "unevaluatedProperties": false
+          }
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "validated", "pending_approval", "approved", "rejected", "applied", "rolled_back", "superseded"]
+    },
+    "result_artifact_hash": { "$ref": "#/$defs/hash" },
+    "application_run_snapshot_id": { "$ref": "#/$defs/id" },
+    "field_provenance": { "$ref": "#/$defs/fieldProvenance" }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "application_policy": {
+            "properties": { "apply_mode": { "const": "automatic_apply" } },
+            "required": ["apply_mode"]
+          }
+        },
+        "required": ["application_policy"]
+      },
+      "then": {
+        "properties": {
+          "risk": {
+            "properties": {
+              "level": { "const": "low" },
+              "touches_protected_domain": { "const": false },
+              "changes_story_fact": { "const": false },
+              "introduces_new_information": { "const": false }
+            }
+          },
+          "approval": {
+            "properties": { "status": { "const": "not_required" } }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "risk": {
+            "properties": { "touches_protected_domain": { "const": true } },
+            "required": ["touches_protected_domain"]
+          }
+        },
+        "required": ["risk"]
+      },
+      "then": {
+        "properties": {
+          "application_policy": {
+            "properties": { "apply_mode": { "enum": ["proposal_only", "manual_apply"] } }
+          },
+          "approval": {
+            "properties": { "status": { "enum": ["pending", "approved", "rejected", "expired"] } }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "status": { "const": "applied" } },
+        "required": ["status"]
+      },
+      "then": {
+        "required": ["result_artifact_hash", "application_run_snapshot_id"]
+      }
+    }
+  ],
+  "$defs": {
+    "id": { "$ref": "provenance.schema.json#/$defs/artifactId" },
+    "semver": { "$ref": "provenance.schema.json#/$defs/semver" },
+    "dateTime": { "$ref": "provenance.schema.json#/$defs/dateTime" },
+    "stageId": { "$ref": "provenance.schema.json#/$defs/stageId" },
+    "hash": { "$ref": "provenance.schema.json#/$defs/hash" },
+    "fieldProvenance": { "$ref": "provenance.schema.json#/$defs/fieldProvenance" },
+    "jsonPointer": { "$ref": "provenance.schema.json#/$defs/jsonPointer" },
+    "idList": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/id" },
+      "uniqueItems": true
+    },
+    "jsonValue": {
+      "oneOf": [
+        { "type": ["string", "number", "integer", "boolean", "null"] },
+        { "type": "array", "items": { "$ref": "#/$defs/jsonValue" } },
+        { "type": "object", "additionalProperties": { "$ref": "#/$defs/jsonValue" } }
+      ]
+    },
+    "pathPattern": {
+      "type": "string",
+      "description": "策略匹配语法，不是 RFC 6902 path。每段允许字面 JSON Pointer token、* 单段通配或 ** 尾部递归通配。",
+      "pattern": "^/(?:\\*\\*|\\*|[^~/]|~0|~1)+(?:/(?:\\*\\*|\\*|[^~/]|~0|~1)+)*$"
+    },
+    "precondition": {
+      "type": "object",
+      "required": ["precondition_id", "path", "expected_value_hash", "required"],
+      "properties": {
+        "precondition_id": { "$ref": "#/$defs/id" },
+        "path": { "$ref": "#/$defs/jsonPointer" },
+        "expected_value_hash": { "$ref": "#/$defs/hash" },
+        "required": { "const": true }
+      },
+      "unevaluatedProperties": false
+    },
+    "operation": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["operation_id", "op", "path", "value", "reason", "issue_ids"],
+          "properties": {
+            "operation_id": { "$ref": "#/$defs/id" },
+            "op": { "enum": ["add", "replace", "test"] },
+            "path": { "$ref": "#/$defs/jsonPointer" },
+            "value": { "$ref": "#/$defs/jsonValue" },
+            "reason": { "type": "string", "minLength": 1, "maxLength": 1000 },
+            "issue_ids": { "$ref": "#/$defs/idList" }
+          },
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["operation_id", "op", "path", "reason", "issue_ids"],
+          "properties": {
+            "operation_id": { "$ref": "#/$defs/id" },
+            "op": { "const": "remove" },
+            "path": { "$ref": "#/$defs/jsonPointer" },
+            "reason": { "type": "string", "minLength": 1, "maxLength": 1000 },
+            "issue_ids": { "$ref": "#/$defs/idList" }
+          },
+          "unevaluatedProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["operation_id", "op", "from", "path", "reason", "issue_ids"],
+          "properties": {
+            "operation_id": { "$ref": "#/$defs/id" },
+            "op": { "enum": ["move", "copy"] },
+            "from": { "$ref": "#/$defs/jsonPointer" },
+            "path": { "$ref": "#/$defs/jsonPointer" },
+            "reason": { "type": "string", "minLength": 1, "maxLength": 1000 },
+            "issue_ids": { "$ref": "#/$defs/idList" }
+          },
+          "unevaluatedProperties": false
+        }
+      ]
+    },
+    "policyEvaluation": {
+      "type": "object",
+      "required": [
+        "operation_id",
+        "path_role",
+        "evaluated_pointer",
+        "matched_allowed_pattern",
+        "matched_forbidden_patterns",
+        "decision"
+      ],
+      "properties": {
+        "operation_id": { "$ref": "#/$defs/id" },
+        "path_role": { "type": "string", "enum": ["path", "from"] },
+        "evaluated_pointer": { "$ref": "#/$defs/jsonPointer" },
+        "matched_allowed_pattern": { "$ref": "#/$defs/pathPattern" },
+        "matched_forbidden_patterns": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/pathPattern" },
+          "uniqueItems": true
+        },
+        "decision": { "type": "string", "enum": ["allow", "deny"] }
+      },
+      "unevaluatedProperties": false
+    },
+    "invariant": {
+      "type": "object",
+      "required": ["invariant_id", "name", "validator", "before_status", "required_after_status"],
+      "properties": {
+        "invariant_id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "validator": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "before_status": { "type": "string", "enum": ["pass", "fail", "unknown"] },
+        "required_after_status": { "const": "pass" },
+        "protected_fact_ids": { "$ref": "#/$defs/idList" }
+      },
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

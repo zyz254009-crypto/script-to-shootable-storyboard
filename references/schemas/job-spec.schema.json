@@ -1,0 +1,515 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/job-spec.schema.json",
+  "title": "Storyboard Job Specification",
+  "description": "定义剧本转分镜或分镜优化任务的边界、权限、平台和制作约束。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "job_id",
+    "project_id",
+    "input_type",
+    "production_mode",
+    "revision_permission",
+    "platform",
+    "aspect_ratio",
+    "target_duration_seconds",
+    "audience",
+    "regions",
+    "language",
+    "genre",
+    "budget_level",
+    "audio_generation",
+    "content_rating",
+    "atomic_shot_policy",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "#/$defs/semver"
+    },
+    "created_at": {
+      "$ref": "#/$defs/dateTime"
+    },
+    "created_by_stage": {
+      "$ref": "#/$defs/stageId"
+    },
+    "source_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "job_id": {
+      "$ref": "#/$defs/id"
+    },
+    "project_id": {
+      "$ref": "#/$defs/id"
+    },
+    "input_type": {
+      "type": "string",
+      "enum": [
+        "script",
+        "scene_draft",
+        "synopsis",
+        "dialogue_draft",
+        "existing_storyboard",
+        "seedance_prompt"
+      ]
+    },
+    "production_mode": {
+      "type": "string",
+      "enum": [
+        "live",
+        "seedance",
+        "hybrid",
+        "undecided"
+      ]
+    },
+    "revision_permission": {
+      "type": "string",
+      "enum": [
+        "faithful",
+        "visual",
+        "pacing",
+        "story"
+      ],
+      "default": "faithful"
+    },
+    "platform": {
+      "$ref": "#/$defs/platformBinding"
+    },
+    "aspect_ratio": {
+      "$ref": "#/$defs/aspectRatio"
+    },
+    "target_duration_seconds": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "episode_duration_seconds": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "audience": {
+      "type": "object",
+      "required": [
+        "description"
+      ],
+      "properties": {
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "minimum_age": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 120
+        },
+        "maximum_age": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 120
+        },
+        "audience_tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "uniqueItems": true
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "regions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z]{2}$"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "language": {
+      "type": "string",
+      "pattern": "^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$"
+    },
+    "genre": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "genre_profile_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "uniqueItems": true
+    },
+    "budget_level": {
+      "type": "string",
+      "enum": [
+        "micro",
+        "low",
+        "medium",
+        "high",
+        "unbounded"
+      ]
+    },
+    "budget_limit": {
+      "$ref": "#/$defs/money"
+    },
+    "audio_generation": {
+      "type": "string",
+      "enum": [
+        "none",
+        "live_recording",
+        "generated",
+        "hybrid"
+      ]
+    },
+    "content_rating": {
+      "type": "object",
+      "required": [
+        "system",
+        "rating"
+      ],
+      "properties": {
+        "system": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "rating": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "content_limits": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "uniqueItems": true
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "seedance_model_profile_id": {
+      "$ref": "#/$defs/id"
+    },
+    "atomic_shot_policy": {
+      "type": "object",
+      "required": [
+        "mode",
+        "single_dominant_shot_size",
+        "single_continuous_spacetime",
+        "long_take_requires_exception"
+      ],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "atomic_default",
+            "continuous_shot_enabled"
+          ],
+          "default": "atomic_default"
+        },
+        "single_dominant_shot_size": {
+          "type": "boolean",
+          "const": true
+        },
+        "single_continuous_spacetime": {
+          "type": "boolean",
+          "const": true
+        },
+        "long_take_requires_exception": {
+          "type": "boolean",
+          "const": true
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "locked_fact_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "uniqueItems": true
+    },
+    "authorization_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "uniqueItems": true
+    },
+    "authorizations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/authorization"
+      },
+      "uniqueItems": true
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000
+      }
+    },
+    "field_provenance": {
+      "$ref": "#/$defs/fieldProvenance"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "production_mode": {
+            "enum": [
+              "seedance",
+              "hybrid"
+            ]
+          }
+        },
+        "required": [
+          "production_mode"
+        ]
+      },
+      "then": {
+        "required": [
+          "seedance_model_profile_id"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "revision_permission": {
+            "const": "story"
+          }
+        },
+        "required": [
+          "revision_permission"
+        ]
+      },
+      "then": {
+        "required": [
+          "authorization_ids",
+          "authorizations"
+        ],
+        "properties": {
+          "authorization_ids": {
+            "minItems": 1
+          },
+          "authorizations": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "id": {
+      "$ref": "provenance.schema.json#/$defs/artifactId"
+    },
+    "semver": {
+      "$ref": "provenance.schema.json#/$defs/semver"
+    },
+    "dateTime": {
+      "$ref": "provenance.schema.json#/$defs/dateTime"
+    },
+    "stageId": {
+      "$ref": "provenance.schema.json#/$defs/stageId"
+    },
+    "hash": {
+      "$ref": "provenance.schema.json#/$defs/hash"
+    },
+    "fieldProvenance": {
+      "$ref": "provenance.schema.json#/$defs/fieldProvenance"
+    },
+    "aspectRatio": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]{0,3}:[1-9][0-9]{0,3}$"
+    },
+    "normalizedRect": {
+      "type": "object",
+      "required": [
+        "x",
+        "y",
+        "width",
+        "height"
+      ],
+      "properties": {
+        "x": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "y": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "width": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1
+        },
+        "height": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "platformBinding": {
+      "type": "object",
+      "required": [
+        "platform_profile_id",
+        "target_platform",
+        "delivery_context",
+        "safe_zone_id",
+        "subtitle_zone_id",
+        "ui_occlusion_zone_ids"
+      ],
+      "properties": {
+        "platform_profile_id": {
+          "$ref": "#/$defs/id"
+        },
+        "target_platform": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "delivery_context": {
+          "type": "string",
+          "enum": [
+            "vertical_serial_drama",
+            "short_narrative_video",
+            "narrative_ad",
+            "horizontal_short_film",
+            "other"
+          ]
+        },
+        "safe_zone_id": {
+          "$ref": "#/$defs/id"
+        },
+        "subtitle_zone_id": {
+          "$ref": "#/$defs/id"
+        },
+        "ui_occlusion_zone_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true
+        },
+        "safe_zone_override": {
+          "$ref": "#/$defs/normalizedRect"
+        },
+        "subtitle_zone_override": {
+          "$ref": "#/$defs/normalizedRect"
+        },
+        "ui_occlusion_overrides": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/normalizedRect"
+          }
+        },
+        "profile_version": {
+          "$ref": "#/$defs/semver"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "money": {
+      "type": "object",
+      "required": [
+        "amount",
+        "currency"
+      ],
+      "properties": {
+        "amount": {
+          "type": "number",
+          "minimum": 0
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        },
+        "tax_included": {
+          "type": "boolean"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "authorization": {
+      "type": "object",
+      "required": [
+        "authorization_id",
+        "authorized_scope",
+        "locked_elements",
+        "content_limits",
+        "approved_by",
+        "approved_at"
+      ],
+      "properties": {
+        "authorization_id": {
+          "$ref": "#/$defs/id"
+        },
+        "authorized_scope": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "locked_elements": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "uniqueItems": true
+        },
+        "content_limits": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "approved_by": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "approved_at": {
+          "$ref": "#/$defs/dateTime"
+        }
+      },
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

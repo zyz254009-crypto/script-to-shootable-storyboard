@@ -1,0 +1,862 @@
+{
+  "schema_version": "1.0.0",
+  "project_id": "project-demo-valid",
+  "job_spec": {
+    "schema_version": "1.0.0",
+    "created_at": "2026-06-25T01:00:00.000Z",
+    "created_by_stage": "job-intake",
+    "source_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "job_id": "job-demo-valid",
+    "project_id": "project-demo-valid",
+    "input_type": "script",
+    "production_mode": "seedance",
+    "revision_permission": "faithful",
+    "platform": {
+      "platform_profile_id": "platform-douyin-vertical",
+      "target_platform": "Douyin",
+      "delivery_context": "vertical_serial_drama",
+      "safe_zone_id": "safe-zone-douyin-v1",
+      "subtitle_zone_id": "subtitle-zone-douyin-v1",
+      "ui_occlusion_zone_ids": [
+        "ui-zone-douyin-right"
+      ],
+      "profile_version": "1.0.0"
+    },
+    "aspect_ratio": "9:16",
+    "target_duration_seconds": 60,
+    "audience": {
+      "description": "Adult short-drama viewers",
+      "minimum_age": 18
+    },
+    "regions": [
+      "CN"
+    ],
+    "language": "zh-CN",
+    "genre": [
+      "urban-drama"
+    ],
+    "budget_level": "low",
+    "audio_generation": "generated",
+    "content_rating": {
+      "system": "project-policy",
+      "rating": "adult-general",
+      "content_limits": [
+        "No dangerous imitation instructions"
+      ]
+    },
+    "seedance_model_profile_id": "bytedance-seedance-2.0",
+    "atomic_shot_policy": {
+      "mode": "atomic_default",
+      "single_dominant_shot_size": true,
+      "single_continuous_spacetime": true,
+      "long_take_requires_exception": true
+    },
+    "locked_fact_ids": [],
+    "authorization_ids": [],
+    "field_provenance": {
+      "/project_id": [
+        {
+          "provenance_id": "provenance-job-demo-valid",
+          "source_refs": [
+            {
+              "source_document_id": "source-demo-valid",
+              "source_revision": "1",
+              "stable_span": {
+                "span_id": "span-job-request",
+                "line_start": 1,
+                "line_end": 1,
+                "text_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+              },
+              "source_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          ],
+          "transformation_type": "verbatim",
+          "derived_by_stage": "job-intake",
+          "confidence": 1
+        }
+      ]
+    }
+  },
+  "source_manifests": [
+    {
+      "schema_version": "1.0.0",
+      "created_at": "2026-06-25T01:00:00.000Z",
+      "created_by_stage": "source-ingest",
+      "source_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "source_manifest_id": "source-manifest-demo-valid",
+      "job_id": "job-demo-valid",
+      "source_document_id": "source-demo-valid",
+      "source_revision": "1",
+      "document_type": "script",
+      "title": "Validator fixture source",
+      "language": "zh-CN",
+      "content_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "immutable": true,
+      "stable_spans": [
+        {
+          "span_id": "span-job-request",
+          "kind": "document",
+          "sequence": 0,
+          "char_start": 0,
+          "char_end": 1,
+          "line_start": 1,
+          "line_end": 1,
+          "text_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      ],
+      "field_provenance": {
+        "/source_document_id": [
+          {
+            "provenance_id": "provenance-source-manifest-demo-valid",
+            "source_refs": [
+              {
+                "source_document_id": "source-demo-valid",
+                "source_revision": "1",
+                "stable_span": {
+                  "span_id": "span-job-request",
+                  "line_start": 1,
+                  "line_end": 1,
+                  "text_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+                },
+                "source_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+              }
+            ],
+            "transformation_type": "verbatim",
+            "derived_by_stage": "source-ingest",
+            "confidence": 1
+          }
+        ]
+      }
+    }
+  ],
+  "fact_ledger": {
+    "schema_version": "1.0.0",
+    "created_at": "2026-06-25T01:00:30.000Z",
+    "created_by_stage": "source-analysis",
+    "source_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "fact_ledger_id": "fact-ledger-demo-valid",
+    "job_id": "job-demo-valid",
+    "source_manifest_ids": [
+      "source-manifest-demo-valid"
+    ],
+    "facts": [
+      {
+        "fact_id": "fact-recorder-action",
+        "fact_type": "event",
+        "canonical_value": "林夏把手里的证据放到会议桌中央。",
+        "source_refs": [
+          {
+            "source_document_id": "source-demo-valid",
+            "source_revision": "1",
+            "stable_span": {
+              "span_id": "span-job-request",
+              "line_start": 1,
+              "line_end": 1,
+              "text_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            "source_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          }
+        ],
+        "locked": true,
+        "allowed_transformations": [
+          "visualize_without_semantic_change"
+        ],
+        "status": "active",
+        "field_provenance": {
+          "/canonical_value": [
+            {
+              "provenance_id": "provenance-fact-demo-valid",
+              "source_refs": [
+                {
+                  "source_document_id": "source-demo-valid",
+                  "source_revision": "1",
+                  "stable_span": {
+                    "span_id": "span-job-request",
+                    "line_start": 1,
+                    "line_end": 1,
+                    "text_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+                  },
+                  "source_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                }
+              ],
+              "transformation_type": "verbatim",
+              "derived_by_stage": "source-analysis",
+              "confidence": 1
+            }
+          ]
+        }
+      }
+    ],
+    "field_provenance": {
+      "/source_manifest_ids": [
+        {
+          "provenance_id": "provenance-fact-ledger-demo-valid",
+          "source_refs": [
+            {
+              "source_document_id": "source-demo-valid",
+              "source_revision": "1",
+              "stable_span": {
+                "span_id": "span-job-request",
+                "line_start": 1,
+                "line_end": 1,
+                "text_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+              },
+              "source_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          ],
+          "transformation_type": "verbatim",
+          "derived_by_stage": "source-analysis",
+          "confidence": 1
+        }
+      ]
+    }
+  },
+  "scenes": [
+    {
+      "schema_version": "1.0.0",
+      "created_at": "2026-06-25T01:01:00.000Z",
+      "created_by_stage": "scene-analysis",
+      "source_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "scene_id": "scene-demo-valid",
+      "job_id": "job-demo-valid",
+      "source_manifest_ids": [
+        "source-manifest-demo-valid"
+      ],
+      "source_spans": [
+        {
+          "source_document_id": "source-demo-valid",
+          "source_revision": "1",
+          "stable_span": {
+            "span_id": "span-job-request",
+            "line_start": 1,
+            "line_end": 1,
+            "text_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          },
+          "source_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      ],
+      "sequence_number": 1,
+      "slugline": "内景，会议室，白天",
+      "location_id": "location-meeting-room",
+      "interior_exterior": "interior",
+      "time_of_day": "day",
+      "participant_character_ids": [
+        "character-linxia"
+      ],
+      "beat_ids": [
+        "beat-demo-valid"
+      ],
+      "start_state_summary": "林夏站在长桌右侧，右手握着黑色录音笔。",
+      "end_state_summary": "黑色录音笔停在桌面中央，林夏抬眼看向经理。",
+      "dramatic_context": {
+        "scene_goal": "让经理看到录音笔。",
+        "conflict": "经理阻止林夏展示证据。",
+        "information_change": "录音笔进入所有人的视线。"
+      },
+      "fact_ids": [
+        "fact-recorder-action"
+      ],
+      "field_provenance": {
+        "/slugline": [
+          {
+            "provenance_id": "provenance-scene-demo-valid",
+            "source_refs": [
+              {
+                "source_document_id": "source-demo-valid",
+                "source_revision": "1",
+                "stable_span": {
+                  "span_id": "span-job-request",
+                  "line_start": 1,
+                  "line_end": 1,
+                  "text_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+                },
+                "source_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+              }
+            ],
+            "transformation_type": "verbatim",
+            "derived_by_stage": "scene-analysis",
+            "confidence": 1
+          }
+        ]
+      }
+    }
+  ],
+  "beat_sheet": {
+    "schema_version": "1.0.0",
+    "created_at": "2026-06-25T01:02:00.000Z",
+    "created_by_stage": "beat-analysis",
+    "source_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "beat_sheet_id": "beat-sheet-demo-valid",
+    "job_id": "job-demo-valid",
+    "scene_ids": [
+      "scene-demo-valid"
+    ],
+    "beats": [
+      {
+        "beat_id": "beat-demo-valid",
+        "scene_id": "scene-demo-valid",
+        "sequence": 1,
+        "source_spans": [
+          {
+            "source_document_id": "source-demo-valid",
+            "source_revision": "1",
+            "stable_span": {
+              "span_id": "span-job-request",
+              "line_start": 1,
+              "line_end": 1,
+              "text_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            "source_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          }
+        ],
+        "source_text": "林夏把录音笔放到桌面中央。",
+        "participant_character_ids": [
+          "character-linxia"
+        ],
+        "visible_event": "林夏把右手中的黑色录音笔放到桌面中央并松手。",
+        "information_before": "经理尚未看到录音笔。",
+        "information_after": "经理能够看到桌面中央的录音笔。",
+        "character_goal": "让经理注意到录音笔。",
+        "obstacle": "经理把注意力放在文件上。",
+        "result": "录音笔停在桌面中央。",
+        "start_state": "林夏右手握着录音笔。",
+        "end_state": "录音笔位于桌面中央。",
+        "must_preserve": true,
+        "fact_ids": [
+          "fact-recorder-action"
+        ],
+        "authorized_addition": false,
+        "field_provenance": {
+          "/visible_event": [
+            {
+              "provenance_id": "provenance-beat-demo-valid",
+              "source_refs": [
+                {
+                  "source_document_id": "source-demo-valid",
+                  "source_revision": "1",
+                  "stable_span": {
+                    "span_id": "span-job-request",
+                    "line_start": 1,
+                    "line_end": 1,
+                    "text_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+                  },
+                  "source_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                }
+              ],
+              "transformation_type": "visualized",
+              "derived_by_stage": "beat-analysis",
+              "confidence": 1
+            }
+          ]
+        }
+      }
+    ],
+    "abstract_resolutions": [],
+    "field_provenance": {
+      "/scene_ids": [
+        {
+          "provenance_id": "provenance-beat-sheet-demo-valid",
+          "source_refs": [
+            {
+              "source_document_id": "source-demo-valid",
+              "source_revision": "1",
+              "stable_span": {
+                "span_id": "span-job-request",
+                "line_start": 1,
+                "line_end": 1,
+                "text_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+              },
+              "source_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          ],
+          "transformation_type": "verbatim",
+          "derived_by_stage": "beat-analysis",
+          "confidence": 1
+        }
+      ]
+    }
+  },
+  "shot_list": {
+    "schema_version": "1.0.0",
+    "created_at": "2026-06-25T01:03:00.000Z",
+    "created_by_stage": "atomic-shot-design",
+    "source_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "shot_list_id": "shot-list-demo-valid",
+    "job_id": "job-demo-valid",
+    "scene_ids": [
+      "scene-demo-valid"
+    ],
+    "shots": [
+      {
+        "shot_id": "shot-demo-valid",
+        "sequence": 1,
+        "scene_id": "scene-demo-valid",
+        "beat_ids": [
+          "beat-demo-valid"
+        ],
+        "source_spans": [
+          {
+            "source_document_id": "source-demo-valid",
+            "source_revision": "1",
+            "stable_span": {
+              "span_id": "span-job-request",
+              "line_start": 1,
+              "line_end": 1,
+              "text_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            "source_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          }
+        ],
+        "fact_ids": [
+          "fact-recorder-action"
+        ],
+        "camera_setup_id": "camera-setup-demo-valid",
+        "coverage_role": "single",
+        "coverage_priority": "must_have",
+        "edit_duration_seconds": 5,
+        "capture_or_generation_duration_seconds": 7,
+        "head_handle_seconds": 1,
+        "tail_handle_seconds": 1,
+        "dominant_shot_size": "close_up",
+        "start_composition": {
+          "shot_size": "close_up",
+          "subject_ids": [
+            "character-linxia"
+          ],
+          "framing": "林夏肩部以上入画，位于竖屏右侧。",
+          "screen_regions": [
+            {
+              "subject_id": "character-linxia",
+              "anchor": {
+                "x": 0.68,
+                "y": 0.48
+              },
+              "depth_plane": "midground"
+            }
+          ]
+        },
+        "end_composition": {
+          "shot_size": "close_up",
+          "subject_ids": [
+            "character-linxia"
+          ],
+          "framing": "构图保持近景，林夏松手后抬眼。",
+          "screen_regions": [
+            {
+              "subject_id": "character-linxia",
+              "anchor": {
+                "x": 0.68,
+                "y": 0.48
+              },
+              "depth_plane": "midground"
+            }
+          ]
+        },
+        "allowed_composition_drift": "same_size_minor",
+        "long_take_exception": false,
+        "camera_angle": "eye_level",
+        "camera_position": "长桌右侧，位于既定轴线同侧。",
+        "camera_motion": {
+          "motion_type": "locked",
+          "path": "三脚架固定机位，全程不移动。",
+          "complexity": "none",
+          "stabilization": "tripod"
+        },
+        "primary_subject_id": "character-linxia",
+        "start_state": {
+          "summary": "林夏右手握着黑色录音笔。",
+          "continuity_entry_id": "continuity-shot-demo-valid",
+          "state_hash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        },
+        "visible_action": "林夏把右手中的黑色录音笔放到桌面中央并松手。",
+        "end_state": {
+          "summary": "录音笔停在桌面中央，林夏抬眼看向经理。",
+          "continuity_entry_id": "continuity-shot-demo-valid",
+          "state_hash": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        },
+        "timing": {
+          "timebase_rate": {
+            "frames_per_second": 25,
+            "drop_frame": false
+          },
+          "events": [
+            {
+              "event_id": "event-shot-demo-action",
+              "event_type": "action",
+              "timebase": "shot_local",
+              "start_seconds": 0.5,
+              "end_seconds": 3.5,
+              "may_overlap": true,
+              "dependencies": [],
+              "description": "录音笔从右手移动到桌面中央。",
+              "critical": true
+            }
+          ],
+          "critical_path_event_ids": [
+            "event-shot-demo-action"
+          ],
+          "critical_path_duration_seconds": 3,
+          "calculation_status": "computed",
+          "calculation_rule_version": "1.0.0"
+        },
+        "narrative_purpose": "用录音笔落桌的动作把关键证据推入冲突中心。",
+        "production_decision": {
+          "primary_method": "seedance",
+          "fallback_method": "live",
+          "switch_conditions": [
+            "连续三次生成仍出现手部与录音笔接触错误。"
+          ],
+          "required_handoff_asset_ids": [],
+          "decision_reason": "动作短、主体单一，并保留真人补拍方案。"
+        },
+        "generation_risk_score": 32,
+        "platform_profile_id": "platform-douyin-vertical",
+        "safe_zone_id": "safe-zone-douyin-v1",
+        "subtitle_zone_id": "subtitle-zone-douyin-v1",
+        "ui_occlusion_zone_ids": [
+          "ui-zone-douyin-right"
+        ],
+        "field_provenance": {
+          "/visible_action": [
+            {
+              "provenance_id": "provenance-shot-demo-valid",
+              "source_refs": [
+                {
+                  "source_document_id": "source-demo-valid",
+                  "source_revision": "1",
+                  "stable_span": {
+                    "span_id": "span-job-request",
+                    "line_start": 1,
+                    "line_end": 1,
+                    "text_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+                  },
+                  "source_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                }
+              ],
+              "transformation_type": "visualized",
+              "derived_by_stage": "atomic-shot-design",
+              "confidence": 1
+            }
+          ]
+        }
+      }
+    ],
+    "field_provenance": {
+      "/scene_ids": [
+        {
+          "provenance_id": "provenance-shot-list-demo-valid",
+          "source_refs": [
+            {
+              "source_document_id": "source-demo-valid",
+              "source_revision": "1",
+              "stable_span": {
+                "span_id": "span-job-request",
+                "line_start": 1,
+                "line_end": 1,
+                "text_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+              },
+              "source_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          ],
+          "transformation_type": "verbatim",
+          "derived_by_stage": "atomic-shot-design",
+          "confidence": 1
+        }
+      ]
+    }
+  },
+  "camera_setups": [
+    {
+      "schema_version": "1.0.0",
+      "created_at": "2026-06-25T01:02:30.000Z",
+      "created_by_stage": "camera-design",
+      "source_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "camera_setup_id": "camera-setup-demo-valid",
+      "job_id": "job-demo-valid",
+      "scene_id": "scene-demo-valid",
+      "blocking_plan_id": "blocking-plan-demo-valid",
+      "coordinate_system_ref": "coordinate-system-demo-valid",
+      "camera_position": {
+        "x": 2.5,
+        "y": 1.2,
+        "z": 1.6
+      },
+      "sensor_or_frame_basis": {
+        "basis_type": "virtual_camera",
+        "width": 36,
+        "height": 64,
+        "unit": "virtual_units"
+      },
+      "focal_length": 50,
+      "field_of_view": {
+        "horizontal_degrees": 39.6,
+        "vertical_degrees": 55
+      },
+      "height": 1.6,
+      "orientation": {
+        "pan_degrees": -20,
+        "tilt_degrees": 0,
+        "roll_degrees": 0,
+        "look_at_target_id": "character-linxia"
+      },
+      "focus_strategy": "deep_focus",
+      "frame_rate": 25,
+      "shutter": {
+        "mode": "angle",
+        "angle_degrees": 180
+      },
+      "resolution": {
+        "width": 720,
+        "height": 1280,
+        "pixel_aspect_ratio": 1
+      },
+      "color_space": "Rec.709",
+      "lighting_state": {
+        "lighting_state_id": "lighting-demo-valid",
+        "description": "冷白顶灯，人物面部有可读层次。",
+        "color_temperature_kelvin": 5600,
+        "key_direction_degrees": 315
+      },
+      "axis_side": "right",
+      "supported_shot_intent_ids": [
+        "shot-intent-demo-valid"
+      ],
+      "platform_constraints": {
+        "platform_profile_id": "platform-douyin-vertical",
+        "aspect_ratio": "9:16",
+        "safe_zone_id": "safe-zone-douyin-v1",
+        "subtitle_zone_id": "subtitle-zone-douyin-v1",
+        "ui_occlusion_zone_ids": [
+          "ui-zone-douyin-right"
+        ]
+      },
+      "setup_cost": {
+        "changeover_minutes": 0,
+        "estimated_amount": 0,
+        "currency": "CNY",
+        "crew_or_compute_complexity": "low"
+      },
+      "field_provenance": {
+        "/scene_id": [
+          {
+            "provenance_id": "provenance-camera-demo-valid",
+            "fact_ids": [
+              "fact-recorder-action"
+            ],
+            "transformation_type": "visualized",
+            "derived_by_stage": "camera-design",
+            "confidence": 1
+          }
+        ]
+      }
+    }
+  ],
+  "continuity_ledgers": [
+    {
+      "schema_version": "1.0.0",
+      "created_at": "2026-06-25T01:03:30.000Z",
+      "created_by_stage": "continuity-review",
+      "source_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "continuity_ledger_id": "continuity-ledger-demo-valid",
+      "job_id": "job-demo-valid",
+      "entries": [
+        {
+          "continuity_entry_id": "continuity-shot-demo-valid",
+          "shot_id": "shot-demo-valid",
+          "scene_id": "scene-demo-valid",
+          "camera_setup_id": "camera-setup-demo-valid",
+          "start_state": {
+            "character_states": [
+              {
+                "character_id": "character-linxia",
+                "position_mark_id": "mark-linxia-right",
+                "screen_direction": "stationary",
+                "facing_direction": "朝向画面左侧的经理",
+                "eyeline_target_id": "character-manager",
+                "pose": "站立，右手握着录音笔",
+                "action_phase": {
+                  "action_id": "action-place-recorder",
+                  "phase": "anticipation"
+                },
+                "performance_intensity": 4,
+                "dialogue_state": "not_speaking",
+                "wardrobe_state_id": "wardrobe-linxia-scene-1",
+                "injury_state_id": "injury-none",
+                "dirt_state_id": "dirt-none"
+              }
+            ],
+            "prop_states": [
+              {
+                "prop_id": "prop-recorder",
+                "owner_character_id": "character-linxia",
+                "hand": "right",
+                "position_mark_id": "mark-linxia-right",
+                "state": "握在林夏右手"
+              }
+            ],
+            "environment_state": {
+              "doors_windows_lights": [
+                {
+                  "object_id": "light-ceiling",
+                  "state": "开启"
+                }
+              ],
+              "time_of_day": "day",
+              "weather": "indoor-not-applicable",
+              "lighting_direction": "冷白顶光",
+              "environment_audio_state_id": "audio-room-tone"
+            },
+            "axis_side": "side_a",
+            "axis_id": "axis-linxia-manager",
+            "state_hash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+          },
+          "end_state": {
+            "character_states": [
+              {
+                "character_id": "character-linxia",
+                "position_mark_id": "mark-linxia-right",
+                "screen_direction": "stationary",
+                "facing_direction": "朝向画面左侧的经理",
+                "eyeline_target_id": "character-manager",
+                "pose": "站立，右手已经离开录音笔",
+                "action_phase": {
+                  "action_id": "action-place-recorder",
+                  "phase": "completed"
+                },
+                "performance_intensity": 5,
+                "dialogue_state": "not_speaking",
+                "wardrobe_state_id": "wardrobe-linxia-scene-1",
+                "injury_state_id": "injury-none",
+                "dirt_state_id": "dirt-none"
+              }
+            ],
+            "prop_states": [
+              {
+                "prop_id": "prop-recorder",
+                "owner_character_id": null,
+                "hand": "not_held",
+                "position_mark_id": "mark-table-center",
+                "state": "停在桌面中央"
+              }
+            ],
+            "environment_state": {
+              "doors_windows_lights": [
+                {
+                  "object_id": "light-ceiling",
+                  "state": "开启"
+                }
+              ],
+              "time_of_day": "day",
+              "weather": "indoor-not-applicable",
+              "lighting_direction": "冷白顶光",
+              "environment_audio_state_id": "audio-room-tone"
+            },
+            "axis_side": "side_a",
+            "axis_id": "axis-linxia-manager",
+            "state_hash": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+          },
+          "audio_event_ids": [],
+          "field_provenance": {
+            "/shot_id": [
+              {
+                "provenance_id": "provenance-continuity-entry-demo-valid",
+                "fact_ids": [
+                  "fact-recorder-action"
+                ],
+                "transformation_type": "visualized",
+                "derived_by_stage": "continuity-review",
+                "confidence": 1
+              }
+            ]
+          }
+        }
+      ],
+      "transitions": [],
+      "field_provenance": {
+        "/entries": [
+          {
+            "provenance_id": "provenance-continuity-ledger-demo-valid",
+            "fact_ids": [
+              "fact-recorder-action"
+            ],
+            "transformation_type": "visualized",
+            "derived_by_stage": "continuity-review",
+            "confidence": 1
+          }
+        ]
+      }
+    }
+  ],
+  "rights_manifest": {
+    "records": [
+      {
+        "rights_subject_id": "rights-script-demo",
+        "verification_status": "verified"
+      }
+    ]
+  },
+  "cost_inputs": {
+    "currency": "CNY",
+    "pricing_as_of": "2026-06-25",
+    "assumptions": {
+      "default_tax_rate": 0.06,
+      "payment_fee_rate": 0.01,
+      "contingency_rates": {
+        "minimum": 0.03,
+        "expected": 0.1,
+        "high_failure": 0.25
+      },
+      "notes": [
+        "Generation attempt counts are planning assumptions, not provider guarantees."
+      ]
+    },
+    "line_items": [
+      {
+        "line_item_id": "seedance-attempts",
+        "category": "ai_generation",
+        "unit_price": 12,
+        "quantity_distribution": {
+          "low": 4,
+          "expected": 7,
+          "high_failure": 12
+        },
+        "tax_included": false
+      },
+      {
+        "line_item_id": "human-review",
+        "category": "quality_review",
+        "unit_price": 80,
+        "quantity_distribution": {
+          "low": 1,
+          "expected": 2,
+          "high_failure": 4
+        },
+        "tax_included": false
+      },
+      {
+        "line_item_id": "post-production",
+        "category": "post",
+        "unit_price": 150,
+        "quantity_distribution": {
+          "low": 1,
+          "expected": 1,
+          "high_failure": 2
+        },
+        "tax_included": false
+      }
+    ],
+    "budget": {
+      "soft_limit": 1000,
+      "hard_limit": 1500
+    },
+    "excluded_costs": [
+      "music licensing",
+      "live-action fallback"
+    ],
+    "unknown_costs": []
+  },
+  "quality_report": {
+    "report_type": "quality-report",
+    "issues": []
+  }
+}

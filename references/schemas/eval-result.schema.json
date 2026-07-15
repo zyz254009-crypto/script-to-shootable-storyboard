@@ -1,0 +1,385 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/eval-result.schema.json",
+  "title": "Evaluation Result",
+  "description": "记录 Schema、校验器、完整流程、对抗、回归、隔离盲测、真实生成、时间线装配和真人走戏评测的预注册设计、重复运行、指标、置信区间和结论。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "eval_result_id",
+    "evaluation_id",
+    "evaluation_version",
+    "evaluation_type",
+    "metrics_config",
+    "preregistration",
+    "dataset",
+    "variants",
+    "run_snapshots",
+    "power_analysis",
+    "metric_results",
+    "reviewers",
+    "blind_protocol",
+    "gate_results",
+    "overall_status",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": { "$ref": "#/$defs/semver" },
+    "created_at": { "$ref": "#/$defs/dateTime" },
+    "created_by_stage": { "$ref": "#/$defs/stageId" },
+    "source_hash": { "$ref": "#/$defs/hash" },
+    "eval_result_id": { "$ref": "#/$defs/id" },
+    "evaluation_id": { "$ref": "#/$defs/id" },
+    "evaluation_version": { "$ref": "#/$defs/semver" },
+    "evaluation_type": {
+      "type": "string",
+      "enum": [
+        "schema_unit",
+        "validator_unit",
+        "end_to_end",
+        "adversarial",
+        "regression",
+        "blind_skill_vs_baseline",
+        "seedance_multi_attempt",
+        "timeline_assembly",
+        "table_read_or_blocking",
+        "cost_calibration",
+        "release_audit"
+      ]
+    },
+    "metrics_config": {
+      "type": "object",
+      "required": ["metrics_config_id", "config_version", "config_hash", "frozen_before_run"],
+      "properties": {
+        "metrics_config_id": { "$ref": "#/$defs/id" },
+        "config_version": { "$ref": "#/$defs/semver" },
+        "config_hash": { "$ref": "#/$defs/hash" },
+        "frozen_before_run": { "const": true }
+      },
+      "unevaluatedProperties": false
+    },
+    "preregistration": {
+      "type": "object",
+      "required": ["registered_at", "protocol_hash", "primary_metric_ids", "exclusion_rules_hash"],
+      "properties": {
+        "registered_at": { "$ref": "#/$defs/dateTime" },
+        "protocol_hash": { "$ref": "#/$defs/hash" },
+        "primary_metric_ids": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/id" },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "secondary_metric_ids": { "$ref": "#/$defs/idList" },
+        "exclusion_rules_hash": { "$ref": "#/$defs/hash" }
+      },
+      "unevaluatedProperties": false
+    },
+    "dataset": {
+      "type": "object",
+      "required": [
+        "dataset_id",
+        "dataset_version",
+        "dataset_hash",
+        "split",
+        "sample_count",
+        "hidden",
+        "sealed_manifest_hash",
+        "contamination_check"
+      ],
+      "properties": {
+        "dataset_id": { "$ref": "#/$defs/id" },
+        "dataset_version": { "$ref": "#/$defs/semver" },
+        "dataset_hash": { "$ref": "#/$defs/hash" },
+        "split": { "type": "string", "enum": ["development", "validation", "hidden_test", "regression", "production_sample"] },
+        "sample_count": { "type": "integer", "minimum": 1 },
+        "hidden": { "type": "boolean" },
+        "sealed_manifest_hash": { "$ref": "#/$defs/hash" },
+        "contamination_check": {
+          "type": "object",
+          "required": ["performed", "status", "evidence_hash"],
+          "properties": {
+            "performed": { "const": true },
+            "status": { "type": "string", "enum": ["clean", "suspected", "contaminated"] },
+            "evidence_hash": { "$ref": "#/$defs/hash" }
+          },
+          "unevaluatedProperties": false
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "variants": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/variant" },
+      "minItems": 1
+    },
+    "run_snapshots": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/id" },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "power_analysis": {
+      "type": "object",
+      "required": [
+        "method",
+        "alpha",
+        "target_power",
+        "achieved_power",
+        "minimum_detectable_effect",
+        "required_sample_size",
+        "actual_sample_size",
+        "adequately_powered"
+      ],
+      "properties": {
+        "method": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "alpha": { "type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1 },
+        "target_power": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+        "achieved_power": { "type": "number", "minimum": 0, "maximum": 1 },
+        "minimum_detectable_effect": { "type": "number", "minimum": 0 },
+        "required_sample_size": { "type": "integer", "minimum": 1 },
+        "actual_sample_size": { "type": "integer", "minimum": 1 },
+        "adequately_powered": { "type": "boolean" }
+      },
+      "unevaluatedProperties": false
+    },
+    "metric_results": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/metricResult" },
+      "minItems": 1
+    },
+    "reviewers": {
+      "type": "object",
+      "required": [
+        "required_reviewer_count",
+        "completed_reviewer_ids",
+        "adjudication_policy",
+        "agreement_results"
+      ],
+      "properties": {
+        "required_reviewer_count": { "type": "integer", "minimum": 1 },
+        "completed_reviewer_ids": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/id" },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "adjudication_policy": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "adjudicator_id": { "$ref": "#/$defs/id" },
+        "agreement_results": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["measure", "value", "sample_count"],
+            "properties": {
+              "measure": { "type": "string", "enum": ["weighted_cohen_kappa", "icc_2_k", "fleiss_kappa", "custom"] },
+              "value": { "type": "number", "minimum": -1, "maximum": 1 },
+              "sample_count": { "type": "integer", "minimum": 1 },
+              "confidence_interval": { "$ref": "#/$defs/confidenceInterval" }
+            },
+            "unevaluatedProperties": false
+          }
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "blind_protocol": {
+      "type": "object",
+      "required": [
+        "enabled",
+        "clean_workspace",
+        "independent_permission_environment",
+        "gold_answers_hidden",
+        "variant_identity_hidden",
+        "output_order_randomized",
+        "output_length_controlled",
+        "unauthorized_reads_detected",
+        "audit_hash"
+      ],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "clean_workspace": { "type": "boolean" },
+        "independent_permission_environment": { "type": "boolean" },
+        "gold_answers_hidden": { "type": "boolean" },
+        "variant_identity_hidden": { "type": "boolean" },
+        "output_order_randomized": { "type": "boolean" },
+        "output_length_controlled": { "type": "boolean" },
+        "unauthorized_reads_detected": { "type": "boolean" },
+        "audit_hash": { "$ref": "#/$defs/hash" }
+      },
+      "unevaluatedProperties": false
+    },
+    "production_validation": {
+      "type": "object",
+      "properties": {
+        "shot_count": { "type": "integer", "minimum": 0 },
+        "attempts_per_shot_minimum": { "type": "integer", "minimum": 0 },
+        "low_risk_shot_count": { "type": "integer", "minimum": 0 },
+        "medium_risk_shot_count": { "type": "integer", "minimum": 0 },
+        "high_risk_shot_count": { "type": "integer", "minimum": 0 },
+        "timeline_scene_count": { "type": "integer", "minimum": 0 },
+        "table_read_or_blocking_scene_count": { "type": "integer", "minimum": 0 },
+        "generation_attempt_ids": { "$ref": "#/$defs/idList" },
+        "timeline_ids": { "$ref": "#/$defs/idList" }
+      },
+      "unevaluatedProperties": false
+    },
+    "gate_results": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/gateResult" },
+      "minItems": 1
+    },
+    "overall_status": { "type": "string", "enum": ["pass", "conditional", "fail", "invalid"] },
+    "blocking_issue_ids": { "$ref": "#/$defs/idList" },
+    "report_hash": { "$ref": "#/$defs/hash" },
+    "field_provenance": { "$ref": "#/$defs/fieldProvenance" }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "evaluation_type": { "const": "blind_skill_vs_baseline" } },
+        "required": ["evaluation_type"]
+      },
+      "then": {
+        "properties": {
+          "variants": { "minItems": 2 },
+          "reviewers": {
+            "properties": {
+              "required_reviewer_count": { "minimum": 3 }
+            }
+          },
+          "blind_protocol": {
+            "properties": {
+              "enabled": { "const": true },
+              "clean_workspace": { "const": true },
+              "independent_permission_environment": { "const": true },
+              "gold_answers_hidden": { "const": true },
+              "variant_identity_hidden": { "const": true },
+              "output_order_randomized": { "const": true },
+              "unauthorized_reads_detected": { "const": false }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "evaluation_type": { "const": "seedance_multi_attempt" } },
+        "required": ["evaluation_type"]
+      },
+      "then": {
+        "required": ["production_validation"],
+        "properties": {
+          "production_validation": {
+            "properties": {
+              "shot_count": { "minimum": 36 },
+              "attempts_per_shot_minimum": { "minimum": 3 },
+              "low_risk_shot_count": { "minimum": 12 },
+              "medium_risk_shot_count": { "minimum": 12 },
+              "high_risk_shot_count": { "minimum": 12 }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "overall_status": { "const": "pass" } },
+        "required": ["overall_status"]
+      },
+      "then": {
+        "properties": {
+          "power_analysis": {
+            "properties": { "adequately_powered": { "const": true } }
+          },
+          "blocking_issue_ids": { "maxItems": 0 }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "id": { "$ref": "provenance.schema.json#/$defs/artifactId" },
+    "semver": { "$ref": "provenance.schema.json#/$defs/semver" },
+    "dateTime": { "$ref": "provenance.schema.json#/$defs/dateTime" },
+    "stageId": { "$ref": "provenance.schema.json#/$defs/stageId" },
+    "hash": { "$ref": "provenance.schema.json#/$defs/hash" },
+    "fieldProvenance": { "$ref": "provenance.schema.json#/$defs/fieldProvenance" },
+    "idList": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/id" },
+      "uniqueItems": true
+    },
+    "variant": {
+      "type": "object",
+      "required": ["variant_id", "name", "package_hash", "run_count"],
+      "properties": {
+        "variant_id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 150 },
+        "package_hash": { "$ref": "#/$defs/hash" },
+        "skill_enabled": { "type": "boolean" },
+        "run_count": { "type": "integer", "minimum": 1 }
+      },
+      "unevaluatedProperties": false
+    },
+    "confidenceInterval": {
+      "type": "object",
+      "required": ["level", "method", "lower", "upper"],
+      "properties": {
+        "level": { "type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1 },
+        "method": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "lower": { "type": "number" },
+        "upper": { "type": "number" }
+      },
+      "unevaluatedProperties": false
+    },
+    "metricResult": {
+      "type": "object",
+      "required": [
+        "metric_id",
+        "variant_id",
+        "value",
+        "numerator",
+        "denominator",
+        "excluded_count",
+        "sample_count",
+        "confidence_interval",
+        "threshold_status"
+      ],
+      "properties": {
+        "metric_id": { "$ref": "#/$defs/id" },
+        "variant_id": { "$ref": "#/$defs/id" },
+        "value": { "type": "number" },
+        "numerator": { "type": "number" },
+        "denominator": { "type": "number", "exclusiveMinimum": 0 },
+        "excluded_count": { "type": "integer", "minimum": 0 },
+        "sample_count": { "type": "integer", "minimum": 1 },
+        "standard_deviation": { "type": "number", "minimum": 0 },
+        "confidence_interval": { "$ref": "#/$defs/confidenceInterval" },
+        "p_value": { "type": "number", "minimum": 0, "maximum": 1 },
+        "effect_size": { "type": "number" },
+        "threshold_status": { "type": "string", "enum": ["pass", "fail", "not_applicable"] },
+        "evidence_hash": { "$ref": "#/$defs/hash" }
+      },
+      "unevaluatedProperties": false
+    },
+    "gateResult": {
+      "type": "object",
+      "required": ["gate_id", "status", "evidence_ids", "severity_on_failure"],
+      "properties": {
+        "gate_id": { "$ref": "#/$defs/id" },
+        "status": { "type": "string", "enum": ["pass", "fail", "manual_review", "not_applicable"] },
+        "evidence_ids": { "$ref": "#/$defs/idList" },
+        "severity_on_failure": {
+          "type": "string",
+          "enum": ["blocker", "critical", "error", "warning"]
+        },
+        "issue_id": { "$ref": "#/$defs/id" }
+      },
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

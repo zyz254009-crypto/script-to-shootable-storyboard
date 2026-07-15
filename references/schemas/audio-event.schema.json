@@ -1,0 +1,562 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/audio-event.schema.json",
+  "title": "Audio Event",
+  "description": "定义对白、旁白、环境声、拟音、音乐、Wild Track 和声画桥在 Shot 局部或成片全局时间轴上的事件、依赖和生产状态。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "audio_event_id",
+    "job_id",
+    "event_type",
+    "source",
+    "timing",
+    "shot_ids",
+    "timeline_clip_ids",
+    "required_for_comprehension",
+    "lip_sync_required",
+    "post_dub_allowed",
+    "continuity_state",
+    "dependencies",
+    "production_status",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "#/$defs/semver"
+    },
+    "created_at": {
+      "$ref": "#/$defs/dateTime"
+    },
+    "created_by_stage": {
+      "$ref": "#/$defs/stageId"
+    },
+    "source_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "audio_event_id": {
+      "$ref": "#/$defs/id"
+    },
+    "job_id": {
+      "$ref": "#/$defs/id"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "sync_dialogue",
+        "offscreen_dialogue",
+        "voice_over",
+        "ambience",
+        "foley",
+        "music",
+        "wild_track",
+        "j_cut",
+        "l_cut",
+        "sound_effect",
+        "silence",
+        "room_tone"
+      ]
+    },
+    "source": {
+      "$ref": "#/$defs/audioSource"
+    },
+    "source_media_asset_id": {
+      "$ref": "#/$defs/id"
+    },
+    "audio_production_id": {
+      "$ref": "#/$defs/id"
+    },
+    "timing": {
+      "$ref": "#/$defs/timing"
+    },
+    "shot_ids": {
+      "$ref": "#/$defs/nonEmptyIdList"
+    },
+    "timeline_clip_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "speaker_character_id": {
+      "$ref": "#/$defs/id"
+    },
+    "dialogue_block_id": {
+      "$ref": "#/$defs/id"
+    },
+    "dialogue_text": {
+      "type": "string",
+      "maxLength": 4000
+    },
+    "language_profile_id": {
+      "$ref": "#/$defs/id"
+    },
+    "delivery": {
+      "type": "object",
+      "required": [
+        "estimated_syllable_or_character_units",
+        "target_pace",
+        "pace_units_per_minute",
+        "pause_seconds",
+        "breath_seconds",
+        "tested_read_duration_seconds",
+        "tested_by",
+        "dialogue_function",
+        "meaning_fact_ids",
+        "compression_allowed"
+      ],
+      "properties": {
+        "estimated_syllable_or_character_units": {
+          "type": "number",
+          "minimum": 0
+        },
+        "target_pace": {
+          "type": "string",
+          "enum": [
+            "slow",
+            "natural",
+            "fast",
+            "interrupted",
+            "breathless",
+            "custom"
+          ]
+        },
+        "pace_units_per_minute": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "pause_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "breath_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "emphasis_notes": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "information_units": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "uniqueItems": true
+        },
+        "tested_read_duration_seconds": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "tested_by": {
+          "type": "string",
+          "enum": [
+            "human_read",
+            "tts",
+            "generated_voice",
+            "calibrated_language_profile",
+            "estimate_only"
+          ]
+        },
+        "dialogue_function": {
+          "type": "string",
+          "enum": [
+            "goal",
+            "obstacle",
+            "evidence",
+            "threat",
+            "refusal",
+            "reveal",
+            "reaction",
+            "decision",
+            "transition",
+            "other"
+          ]
+        },
+        "meaning_fact_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "compression_allowed": {
+          "type": "boolean"
+        },
+        "overlap_audio_event_ids": {
+          "$ref": "#/$defs/idList"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "required_for_comprehension": {
+      "type": "boolean"
+    },
+    "visual_redundancy_shot_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "lip_sync_required": {
+      "type": "boolean"
+    },
+    "post_dub_allowed": {
+      "type": "boolean"
+    },
+    "crosses_shot_boundary": {
+      "type": "boolean"
+    },
+    "continuity_state": {
+      "type": "object",
+      "required": [
+        "state_id",
+        "start_state",
+        "end_state",
+        "must_continue"
+      ],
+      "properties": {
+        "state_id": {
+          "$ref": "#/$defs/id"
+        },
+        "start_state": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "end_state": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "must_continue": {
+          "type": "boolean"
+        },
+        "next_audio_event_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "room_tone_profile_id": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/dependency"
+      },
+      "uniqueItems": true
+    },
+    "production_status": {
+      "type": "string",
+      "enum": [
+        "planned",
+        "attempted",
+        "asset_selected",
+        "placed",
+        "approved",
+        "blocked"
+      ]
+    },
+    "blocking_issue_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "field_provenance": {
+      "$ref": "#/$defs/fieldProvenance"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "enum": [
+              "sync_dialogue",
+              "offscreen_dialogue",
+              "voice_over"
+            ]
+          }
+        },
+        "required": [
+          "event_type"
+        ]
+      },
+      "then": {
+        "required": [
+          "dialogue_text",
+          "delivery",
+          "language_profile_id"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "source": {
+            "properties": {
+              "source_type": {
+                "const": "media_asset"
+              }
+            },
+            "required": [
+              "source_type"
+            ]
+          }
+        },
+        "required": [
+          "source"
+        ]
+      },
+      "then": {
+        "required": [
+          "source_media_asset_id"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "lip_sync_required": {
+            "const": true
+          }
+        },
+        "required": [
+          "lip_sync_required"
+        ]
+      },
+      "then": {
+        "required": [
+          "speaker_character_id",
+          "dialogue_block_id",
+          "dialogue_text"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "enum": [
+              "j_cut",
+              "l_cut"
+            ]
+          }
+        },
+        "required": [
+          "event_type"
+        ]
+      },
+      "then": {
+        "required": [
+          "crosses_shot_boundary"
+        ],
+        "properties": {
+          "crosses_shot_boundary": {
+            "const": true
+          },
+          "shot_ids": {
+            "minItems": 2
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "required_for_comprehension": {
+            "const": true
+          },
+          "production_status": {
+            "enum": [
+              "placed",
+              "approved"
+            ]
+          }
+        },
+        "required": [
+          "required_for_comprehension",
+          "production_status"
+        ]
+      },
+      "then": {
+        "required": [
+          "audio_production_id"
+        ],
+        "properties": {
+          "timeline_clip_ids": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "production_status": {
+            "const": "blocked"
+          }
+        },
+        "required": [
+          "production_status"
+        ]
+      },
+      "then": {
+        "required": [
+          "blocking_issue_ids"
+        ],
+        "properties": {
+          "blocking_issue_ids": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "id": {
+      "$ref": "provenance.schema.json#/$defs/artifactId"
+    },
+    "semver": {
+      "$ref": "provenance.schema.json#/$defs/semver"
+    },
+    "dateTime": {
+      "$ref": "provenance.schema.json#/$defs/dateTime"
+    },
+    "stageId": {
+      "$ref": "provenance.schema.json#/$defs/stageId"
+    },
+    "hash": {
+      "$ref": "provenance.schema.json#/$defs/hash"
+    },
+    "fieldProvenance": {
+      "$ref": "provenance.schema.json#/$defs/fieldProvenance"
+    },
+    "idList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "uniqueItems": true
+    },
+    "nonEmptyIdList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "audioSource": {
+      "type": "object",
+      "required": [
+        "source_type",
+        "description"
+      ],
+      "properties": {
+        "source_type": {
+          "type": "string",
+          "enum": [
+            "source_script",
+            "live_recording",
+            "studio_recording",
+            "generated",
+            "library",
+            "media_asset",
+            "silence_design"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "source_span_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "rights_record_ids": {
+          "$ref": "#/$defs/idList"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "timing": {
+      "type": "object",
+      "required": [
+        "timebase",
+        "start_seconds",
+        "end_seconds"
+      ],
+      "properties": {
+        "timebase": {
+          "type": "string",
+          "enum": [
+            "shot_local",
+            "timeline_global"
+          ]
+        },
+        "anchor_shot_id": {
+          "$ref": "#/$defs/id"
+        },
+        "start_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "end_seconds": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "timeline_origin_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "timebase_rate": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "timebase": {
+                "const": "shot_local"
+              }
+            },
+            "required": [
+              "timebase"
+            ]
+          },
+          "then": {
+            "required": [
+              "anchor_shot_id"
+            ]
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "dependency": {
+      "type": "object",
+      "required": [
+        "event_id",
+        "relation",
+        "minimum_gap_seconds"
+      ],
+      "properties": {
+        "event_id": {
+          "$ref": "#/$defs/id"
+        },
+        "relation": {
+          "type": "string",
+          "enum": [
+            "finish_to_start",
+            "start_to_start",
+            "finish_to_finish",
+            "start_to_finish"
+          ]
+        },
+        "minimum_gap_seconds": {
+          "type": "number"
+        }
+      },
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

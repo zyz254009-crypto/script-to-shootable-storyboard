@@ -1,0 +1,397 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.script-to-shootable-storyboard.invalid/v1/provisional-shot-intent.schema.json",
+  "title": "Provisional Shot Intent",
+  "description": "在 Coverage 与 Camera Setup 阶段冻结叙事、调度、声音和平台意图，避免提前引用尚未创建的正式 Shot。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "created_by_stage",
+    "source_hash",
+    "shot_intent_id",
+    "job_id",
+    "scene_id",
+    "beat_ids",
+    "coverage_ids",
+    "editorial_purpose",
+    "dominant_subject",
+    "provisional_shot_size",
+    "blocking_requirements",
+    "audio_requirements",
+    "platform_constraints",
+    "status",
+    "fact_ids",
+    "field_provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "#/$defs/semver"
+    },
+    "created_at": {
+      "$ref": "#/$defs/dateTime"
+    },
+    "created_by_stage": {
+      "$ref": "#/$defs/stageId"
+    },
+    "source_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "shot_intent_id": {
+      "$ref": "#/$defs/id"
+    },
+    "job_id": {
+      "$ref": "#/$defs/id"
+    },
+    "scene_id": {
+      "$ref": "#/$defs/id"
+    },
+    "beat_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "coverage_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "editorial_purpose": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1500
+    },
+    "dominant_subject": {
+      "$ref": "#/$defs/dominantSubject"
+    },
+    "provisional_shot_size": {
+      "$ref": "#/$defs/shotSize"
+    },
+    "blocking_requirements": {
+      "$ref": "#/$defs/blockingRequirements"
+    },
+    "audio_requirements": {
+      "$ref": "#/$defs/audioRequirements"
+    },
+    "platform_constraints": {
+      "$ref": "#/$defs/platformConstraints"
+    },
+    "candidate_camera_setup_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "uniqueItems": true
+    },
+    "selected_camera_setup_id": {
+      "$ref": "#/$defs/id"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "proposed",
+        "allocated_to_setup",
+        "frozen_as_shot",
+        "rejected"
+      ]
+    },
+    "final_shot_id": {
+      "$ref": "#/$defs/id"
+    },
+    "rejection_reason": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    },
+    "fact_ids": {
+      "$ref": "#/$defs/idList"
+    },
+    "field_provenance": {
+      "$ref": "#/$defs/fieldProvenance"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "allocated_to_setup"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "selected_camera_setup_id"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "frozen_as_shot"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "selected_camera_setup_id",
+          "final_shot_id"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "rejected"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "rejection_reason"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "proposed",
+              "allocated_to_setup",
+              "rejected"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "not": {
+          "required": [
+            "final_shot_id"
+          ]
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "id": {
+      "$ref": "provenance.schema.json#/$defs/artifactId"
+    },
+    "semver": {
+      "$ref": "provenance.schema.json#/$defs/semver"
+    },
+    "dateTime": {
+      "$ref": "provenance.schema.json#/$defs/dateTime"
+    },
+    "stageId": {
+      "$ref": "provenance.schema.json#/$defs/stageId"
+    },
+    "hash": {
+      "$ref": "provenance.schema.json#/$defs/hash"
+    },
+    "fieldProvenance": {
+      "$ref": "provenance.schema.json#/$defs/fieldProvenance"
+    },
+    "idList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "shotSize": {
+      "type": "string",
+      "enum": [
+        "extreme_wide",
+        "wide",
+        "full",
+        "medium_wide",
+        "medium",
+        "medium_close",
+        "close",
+        "extreme_close",
+        "insert"
+      ]
+    },
+    "dominantSubject": {
+      "type": "object",
+      "required": [
+        "subject_type",
+        "subject_ids"
+      ],
+      "properties": {
+        "subject_type": {
+          "type": "string",
+          "enum": [
+            "character",
+            "relationship",
+            "prop",
+            "environment",
+            "action"
+          ]
+        },
+        "subject_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 500
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "blockingRequirements": {
+      "type": "object",
+      "required": [
+        "blocking_plan_id",
+        "action_phase_ids",
+        "required_mark_ids"
+      ],
+      "properties": {
+        "blocking_plan_id": {
+          "$ref": "#/$defs/id"
+        },
+        "action_phase_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "required_mark_ids": {
+          "$ref": "#/$defs/idList"
+        },
+        "movement_path_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true
+        },
+        "required_depth_layers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "foreground",
+              "midground",
+              "background"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "occlusion_relation_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true
+        },
+        "eyeline_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true
+        },
+        "axis_id": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "audioRequirements": {
+      "type": "object",
+      "required": [
+        "audio_event_ids",
+        "dialogue_capture",
+        "must_be_visible_reaction",
+        "sound_bridge_policy"
+      ],
+      "properties": {
+        "audio_event_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true
+        },
+        "dialogue_capture": {
+          "type": "string",
+          "enum": [
+            "none",
+            "sync",
+            "voice_over",
+            "post_dub",
+            "generated",
+            "hybrid"
+          ]
+        },
+        "must_be_visible_reaction": {
+          "type": "boolean"
+        },
+        "sound_bridge_policy": {
+          "type": "string",
+          "enum": [
+            "none",
+            "j_cut",
+            "l_cut",
+            "continuous_ambience",
+            "other"
+          ]
+        },
+        "wild_track_required": {
+          "type": "boolean"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "aspectRatio": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]{0,3}:[1-9][0-9]{0,3}$"
+    },
+    "platformConstraints": {
+      "type": "object",
+      "required": [
+        "platform_profile_id",
+        "aspect_ratio",
+        "safe_zone_id",
+        "subtitle_zone_id",
+        "ui_occlusion_zone_ids"
+      ],
+      "properties": {
+        "platform_profile_id": {
+          "$ref": "#/$defs/id"
+        },
+        "aspect_ratio": {
+          "$ref": "#/$defs/aspectRatio"
+        },
+        "safe_zone_id": {
+          "$ref": "#/$defs/id"
+        },
+        "subtitle_zone_id": {
+          "$ref": "#/$defs/id"
+        },
+        "ui_occlusion_zone_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true
+        },
+        "required_vertical_composition": {
+          "type": "boolean"
+        }
+      },
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}
