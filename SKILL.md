@@ -1,6 +1,6 @@
 ---
 name: script-to-shootable-storyboard
-description: "将剧本、故事梗概、对白稿、已有分镜或视频生成提示转换、检查并优化为可拍、可剪、适合 Seedance、真人或混合制作的原子分镜。用于剧本转分镜、分镜可拍化、心理描写视觉化、单镜主导景别拆分、短剧钩子与节奏、台词和声音时长、人物道具连续性、Seedance Generation Task、生成风险与失败降级；默认忠实转换，未获授权不得改写剧情。"
+description: "将剧本、故事梗概、对白稿、已有分镜或视频生成提示转换、检查并优化为可拍、可剪、适合 Seedance、真人或混合制作的原子分镜。用于剧本转分镜、分镜可拍化、后续场景开发、反馈驱动迭代、不连贯诊断与修复、心理描写视觉化、单镜主导景别拆分、短剧钩子与节奏、台词和声音时长、人物道具连续性、Seedance Generation Task、生成风险与失败降级；默认忠实转换，未获授权不得改写剧情。"
 ---
 
 # 剧本转 Seedance 可拍分镜
@@ -25,6 +25,7 @@ description: "将剧本、故事梗概、对白稿、已有分镜或视频生成
 
 - 剧本转分镜：先读 [workflow-modes.md](references/workflow-modes.md)、[script-analysis.md](references/script-analysis.md)、[abstract-to-visible.md](references/abstract-to-visible.md)、[atomic-shot-rules.md](references/atomic-shot-rules.md) 和 [storyboard-template.md](assets/storyboard-template.md)。
 - 已有分镜优化：先读 [workflow-modes.md](references/workflow-modes.md)、[atomic-shot-rules.md](references/atomic-shot-rules.md)、[blocking-and-continuity.md](references/blocking-and-continuity.md) 和 [existing-storyboard-repair-template.md](assets/existing-storyboard-repair-template.md)。
+- 后续开发或反馈迭代：先读 [iterative-storyboard-refinement.md](references/iterative-storyboard-refinement.md)、[script-analysis.md](references/script-analysis.md)、[story-bible.md](references/story-bible.md)、[blocking-and-continuity.md](references/blocking-and-continuity.md)、[editing-and-coverage.md](references/editing-and-coverage.md) 和 [existing-storyboard-repair-template.md](assets/existing-storyboard-repair-template.md)。
 - Seedance 生成适配：再读 [model-registry.yaml](references/model-registry.yaml)、[prompt-compiler.md](references/prompt-compiler.md)、[generation-risk-and-repair.md](references/generation-risk-and-repair.md) 和 [generation-task-template.md](assets/generation-task-template.md)。
 - 交付或审查：再读 [schema-index.md](references/schema-index.md)、相关 Schema、[quality-report-template.md](assets/quality-report-template.md)、[rights-safety-compliance.md](references/rights-safety-compliance.md) 和 [source-catalog.md](references/source-catalog.md)。
 
@@ -42,7 +43,7 @@ description: "将剧本、故事梗概、对白稿、已有分镜或视频生成
 8. 标记必须看到、必须听到和可跨镜延续的事件。
 9. 建立 must-have Coverage 和临时 Shot Intent，再规划 Camera Setup。
 10. 冻结原子 Shot，计算动作、对白、反应、摄影机和声音的关键路径时长。
-11. 写入镜头间连续性状态。
+11. 写入镜头间物理连续性状态，并执行叙事连贯性与镜头序列复核。
 12. 逐镜选择真人、Seedance 或混合制作，并设置备用方案和切换条件。
 13. 将每个 Seedance Shot 编译为 Generation Task；默认一镜一任务，多次 Attempt。
 14. 执行质量门禁；按责任阶段定向修复，最多三轮最小补丁。
@@ -109,6 +110,21 @@ description: "将剧本、故事梗概、对白稿、已有分镜或视频生成
 - 对白、环境声、音乐和声画桥的跨镜状态。
 
 先读取 [script-analysis.md](references/script-analysis.md) 与 [story-bible.md](references/story-bible.md)，再读取 [blocking-and-continuity.md](references/blocking-and-continuity.md)。
+
+## 继续开发并修复不连贯
+
+用户要求继续开发后续场景、下一集或优化已有分镜，或者反馈“前后接不上、动作跳了、镜头有点散、节奏断了”时，读取 [iterative-storyboard-refinement.md](references/iterative-storyboard-refinement.md)。
+
+必须：
+
+1. 冻结最近一个已接受版本与用户原始反馈，不从空白状态重做。
+2. 按剧情信息、Scene/Beat、调度空间、Shot/剪辑、声音节奏、生成装配六层诊断最早根因。
+3. 对目标镜头同时检查前一镜和后一镜，比较 `end_state`、`start_state`、动作相位、画面方向、道具和声音。
+4. 从责任层实施最小补丁，并标记受影响的下游 Shot、Task、Asset 和 Clip。
+5. 后续 Scene 继承上一个相关 Scene 的出口快照、未兑现 Hook、人物知识状态和连续性锚点。
+6. 用同一证据窗口复核修复前后结果；默认最多三轮最小补丁。
+
+不得把“不连贯”自动解释为需要新增人物动机、冲突、反转或剧情事实。需要改变核心因果时停在建议区并请求 `story` 授权。
 
 ## 设计短剧钩子、节奏和台词
 
@@ -200,6 +216,7 @@ node scripts/estimate-cost.mjs --input <project.json> --pretty
 - 所有抽象来源均已转为可见或可听证据，抽象语言审查无 Error/Blocker。
 - 正式 Shot 原子结构通过率 100%。
 - must-have Coverage、相邻镜头连续性、关键声音、台词测时、钩子与爽点因果全部闭环。
+- 每个 must-preserve Beat 均有镜头覆盖；不存在孤立 Shot、无触发结果、提前知情或未经授权调序；每对相邻镜头都有明确承接或合法转场。
 - 人物知识状态、当前目标、关系有效区间、说话方式和行为锚点无冲突。
 - 分镜、提示词、连续性、模型档案和制作方式互相一致。
 - 阻断级权利、安全、隐私和合规遗漏为 0。
